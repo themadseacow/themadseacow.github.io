@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DrawerList from '../components/DrawerList.astro';
+import { getDrawerExperiments } from '../lib/experiments';
+
+const experiments = await getDrawerExperiments('personal');
+---
+<BaseLayout title="Personal" drawer="personal">
+  <DrawerList drawer="personal" experiments={experiments} />
+</BaseLayout>

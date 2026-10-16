@@ -1,0 +1,76 @@
+---
+// The shared frame every page sits inside: head, header, cabinet, footer.
+// The home page passes its hero in the "hero" slot; every other page has none.
+import '../styles/global.css';
+import Cabinet from '../components/Cabinet.astro';
+import { isReady, type DrawerId } from '../data/drawers';
+
+interface Props {
+  title?: string;
+  description?: string;
+  drawer?: DrawerId;
+  onDrawerPage?: boolean;
+}
+
+const {
+  title,
+  description = 'Experiments in AI, Linux, hardware, and whatever’s next. Some succeed. Some fail spectacularly. All of them teach me something.',
+  drawer,
+  onDrawerPage = true,
+} = Astro.props;
+
+const fullTitle = title ? `${title} · Mad Seacow` : 'Mad Seacow';
+const hasHero = Astro.slots.has('hero');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:image" content={new URL('/og-image.png', Astro.site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Mad Seacow: Figuring it out by building it." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#1c1b19" />
+    <link rel="preload" href="/fonts/source-serif-4.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/courier-prime-700.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="wordmark" href="/">Mad Seacow</a>
+        {isReady('about') && (
+          <nav class="label" aria-label="Header">
+            <a href="/about/" aria-current={drawer === 'about' ? 'page' : undefined}>About</a>
+          </nav>
+        )}
+      </div>
+    </header>
+
+    <main class="wrap">
+      <slot name="hero" />
+      <div class:list={['room', { inner: !hasHero }]}>
+        <Cabinet current={drawer} onPage={onDrawerPage} />
+        <div class="contents">
+          <slot />
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap label">
+        <span>© 2026 Mad Seacow</span>
+        <span>themadseacow [at] gmail [dot] com · <a href="https://github.com/themadseacow">GitHub</a></span>
+      </div>
+    </footer>
+  </body>
+</html>

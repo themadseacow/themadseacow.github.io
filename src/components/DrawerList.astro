@@ -1,0 +1,37 @@
+---
+// A drawer's contents: its heading and intro, then its folders.
+// An empty drawer shows one "Not filed" folder instead of nothing.
+import Folder from './Folder.astro';
+import { getDrawer, type DrawerId } from '../data/drawers';
+import type { Experiment } from '../lib/experiments';
+
+interface Props {
+  drawer: DrawerId;
+  experiments: Experiment[];
+  headingLevel?: 'h1' | 'h2';
+}
+const { drawer, experiments, headingLevel = 'h1' } = Astro.props;
+const d = getDrawer(drawer)!;
+const Heading = headingLevel;
+---
+<div class="panel-head">
+  <Heading>{d.label}</Heading>
+  {d.intro && <p class:list={{ ph: d.intro.startsWith('[') }}>{d.intro}</p>}
+</div>
+<ul class="files">
+  {experiments.length > 0 ? experiments.map((exp) => <Folder exp={exp} titleLevel={headingLevel === 'h1' ? 'h2' : 'h3'} />) : <Folder />}
+</ul>
+
+<style>
+  .files {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.6rem;
+  }
+  .panel-head h2 {
+    font-size: 1.7rem;
+    margin-bottom: 0.3rem;
+  }
+</style>

@@ -1,0 +1,220 @@
+---
+// One experiment in a drawer list: a tan folder back and tab behind a clean dark row.
+// With no experiment it's an empty "Not filed" folder: dashed and muted.
+import { expNumber, type Experiment } from '../lib/experiments';
+
+interface Props {
+  exp?: Experiment;
+  titleLevel?: 'h2' | 'h3';
+}
+const { exp, titleLevel = 'h2' } = Astro.props;
+const Title = titleLevel;
+const data = exp?.data;
+const dev = import.meta.env.DEV;
+const year = data?.date?.getFullYear();
+const meta = [data?.type, year].filter(Boolean).join(' · ');
+---
+{data ? (
+  <li class="file">
+    <a href={`/experiments/${exp!.id}/`}>
+      <span class="tab label">{expNumber(data.number)}</span>
+      <div class="body">
+        <div>
+          <Title class="title">{data.title}</Title>
+          {data.summary ? <p class="line">{data.summary}</p> : dev && <p class="line ph">[Summary: not in frontmatter yet]</p>}
+          {data.lesson ? (
+            <p class="lesson"><b>Learned</b>{data.lesson}</p>
+          ) : (
+            dev && <p class="lesson"><b>Learned</b><span class="ph">[Lesson: not in frontmatter yet]</span></p>
+          )}
+        </div>
+        <div class="side">
+          {data.draft && <span class="draft label">Draft</span>}
+          {data.case_status && <span class="stamp">{data.case_status}</span>}
+          {meta && <span class="meta label">{meta}</span>}
+        </div>
+        <div class="chips">
+          {data.concepts.map((c) => <span class="chip">{c}</span>)}
+          <span class="open">Open file →</span>
+        </div>
+      </div>
+    </a>
+  </li>
+) : (
+  <li class="file later">
+    <span class="tab label">Not filed</span>
+    <div class="body"><p class="pending">Experiments in progress. Write-ups coming.</p></div>
+  </li>
+)}
+
+<style>
+  .file {
+    position: relative;
+    padding-top: 1.35rem;
+  }
+  .file > a {
+    display: block;
+    background: none;
+    color: inherit;
+  }
+  .file > a:hover {
+    color: inherit;
+  }
+  .file > a:focus-visible {
+    outline: none;
+  }
+
+  /* the tab, and the back of the folder showing as a strip behind the row */
+  .tab {
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    left: 1rem;
+    height: 1.45rem;
+    padding: 0.14rem 0.75rem 0;
+    background: var(--folder);
+    color: var(--on-folder);
+    border: 1px solid var(--folder-edge);
+    border-bottom: 0;
+    border-radius: 6px 6px 0 0;
+    font-size: 0.68rem;
+  }
+  .file::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    left: 0;
+    right: 0;
+    top: 1.3rem;
+    height: 2.5rem;
+    background: var(--folder);
+    border: 1px solid var(--folder-edge);
+    border-bottom: 0;
+    border-radius: 0 7px 0 0;
+  }
+
+  .body {
+    position: relative;
+    z-index: 2;
+    margin-top: 0.55rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.5rem 1.5rem;
+    padding: 1.05rem 1.2rem 1.15rem;
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    border-top-color: #4a463f;
+    border-radius: 0 6px 6px 6px;
+  }
+  .title {
+    font-size: 1.25rem;
+    margin-bottom: 0.25rem;
+  }
+  .line {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .lesson {
+    margin: 0.45rem 0 0;
+    font-size: 0.95rem;
+    color: var(--soft);
+  }
+  .lesson b {
+    margin-right: 0.4rem;
+    font-family: var(--type);
+    font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.55rem;
+    text-align: right;
+  }
+  .meta {
+    color: var(--soft);
+  }
+  .draft {
+    border: 2px dashed var(--text);
+    padding: 0 0.4em;
+    font-size: 0.68rem;
+  }
+  .chips {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.2rem;
+  }
+  .open {
+    margin-left: auto;
+    font-family: var(--type);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--soft);
+  }
+
+  /* hover or keyboard focus: the folder lifts up out of the drawer */
+  .file:not(.later):hover::before,
+  .file:focus-within::before,
+  .file:not(.later):hover .tab,
+  .file:focus-within .tab {
+    transform: translateY(-6px);
+  }
+  .file > a:hover .body,
+  .file > a:focus-visible .body {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.5);
+    border-color: #5a554c;
+  }
+  .file > a:hover .open {
+    color: var(--hazard);
+  }
+  .file > a:focus-visible .body {
+    outline: 3px solid var(--hazard);
+    outline-offset: 2px;
+  }
+
+  /* not filed yet: dashed and muted */
+  .later .tab {
+    background: transparent;
+    border: 1px dashed var(--soft);
+    border-bottom: 0;
+    color: var(--soft);
+  }
+  .later::before {
+    background: transparent;
+    border: 1px dashed var(--soft);
+    border-bottom: 0;
+  }
+  .pending {
+    margin: 0;
+    color: var(--soft);
+    font-size: 1rem;
+  }
+  .later .body {
+    min-height: 3.5rem;
+    background: var(--bg);
+    border: 1px dashed var(--rule);
+    border-top: 1px dashed var(--soft);
+  }
+
+  @media (max-width: 40rem) {
+    .body {
+      grid-template-columns: 1fr;
+    }
+    .side {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      text-align: left;
+    }
+    .side:empty {
+      display: none;
+    }
+  }
+</style>

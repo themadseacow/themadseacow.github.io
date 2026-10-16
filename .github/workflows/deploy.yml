@@ -1,0 +1,45 @@
+# Tells GitHub's computers how to build and publish the site.
+# Runs every time a save point is pushed to the main branch.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Adds a "Run workflow" button in the repo's Actions tab, for a manual redeploy.
+  workflow_dispatch:
+
+# What this job is allowed to do: read the code, publish to Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v7
+      - name: Install, build, and upload the site
+        uses: withastro/action@v6
+        with:
+          node-version: 24
+      # Stops the deploy if any page still has a bracketed placeholder.
+      # ([at] and [dot] in the contact line are fine.)
+      - name: Check for placeholders
+        run: |
+          if grep -rnF -e '[DRAFT' -e '[One line' -e '[Your' -e '[Intro' dist; then
+            echo "Placeholder text found in the built site. Not deploying."
+            exit 1
+          fi
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,15 @@
+---
+// Title-only for now; the concept filter arrives in Phase 4.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getDrawer } from '../data/drawers';
+
+const d = getDrawer('concepts');
+// Hidden on the live site until it has content (ready: false in drawers.ts).
+if (!d) return new Response(null, { status: 404 });
+---
+<BaseLayout title="By concept" drawer="concepts">
+  <div class="panel-head">
+    <h1>{d.label}</h1>
+    {d.intro && <p class:list={{ ph: d.intro.startsWith('[') }}>{d.intro}</p>}
+  </div>
+</BaseLayout>

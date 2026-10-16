@@ -1,0 +1,174 @@
+---
+// The site menu, built as a filing cabinet. Plain links: works with JavaScript off.
+// The current drawer is pulled out; on an experiment page its drawer is marked too.
+import { drawers, type DrawerId } from '../data/drawers';
+
+interface Props {
+  current?: DrawerId;
+  onPage?: boolean; // false on an experiment page: the drawer is where you are, not the page itself
+}
+const { current, onPage = true } = Astro.props;
+---
+<nav class="cabinet" aria-label="Site menu">
+  {drawers.map((d) => (
+    <a
+      class:list={['drawer', { hl: d.id === 'highlights' }]}
+      href={d.href}
+      aria-current={d.id === current ? (onPage ? 'page' : 'true') : undefined}
+    >
+      <span class="interior" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="face"><span class="holder">{d.label}</span><span class="handle"></span></span>
+    </a>
+  ))}
+</nav>
+
+<style>
+  .cabinet {
+    position: sticky;
+    top: 1rem;
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.6rem 0.6rem 1rem;
+    background: linear-gradient(180deg, var(--steel-hi), var(--steel) 6%, var(--steel) 94%, var(--steel-lo));
+    border: 1px solid #47433d;
+    border-radius: 4px;
+    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  /* the cabinet's feet */
+  .cabinet::after {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: -9px;
+    height: 9px;
+    background: #0f0e0d;
+    border-radius: 0 0 3px 3px;
+  }
+  .drawer {
+    display: block;
+    background: none;
+    color: inherit;
+  }
+  .drawer:hover {
+    color: inherit;
+  }
+  .drawer:focus-visible {
+    outline: none;
+  }
+  .drawer:focus-visible .face {
+    outline: 3px solid var(--hazard);
+    outline-offset: 2px;
+  }
+
+  /* the dark inside of the drawer, with folder tabs; only visible when pulled out */
+  .interior {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.35rem;
+    height: 0;
+    overflow: hidden;
+    margin: 0 0.35rem;
+    padding: 0 0.6rem;
+    background: var(--interior);
+    border-radius: 2px 2px 0 0;
+  }
+  .interior i {
+    flex: 0 0 auto;
+    height: 1.15rem;
+    background: var(--folder);
+    border: 1px solid var(--folder-edge);
+    border-bottom: 0;
+    border-radius: 4px 4px 0 0;
+    transform: translateY(4px);
+  }
+  .interior i:nth-child(1) { width: 3rem; }
+  .interior i:nth-child(2) { width: 2.4rem; margin-left: 0.5rem; }
+  .interior i:nth-child(3) { width: 2.8rem; margin-left: 1.2rem; opacity: 0.8; }
+
+  .face {
+    position: relative;
+    height: 4.1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: linear-gradient(180deg, #3d3a34, #2f2c28);
+    border: 1px solid #4d4943;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 2px 0 #1a1917;
+  }
+  .drawer:hover .face {
+    border-color: #5d584f;
+  }
+  .holder {
+    min-width: 7.5rem;
+    padding: 0.08rem 0.6rem;
+    background: var(--text);
+    color: var(--on-folder);
+    border: 2px solid #8d877b;
+    font-family: var(--type);
+    font-weight: 700;
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .handle {
+    width: 4.2rem;
+    height: 0.45rem;
+    border-radius: 0 0 6px 6px;
+    background: linear-gradient(180deg, #8d877b, #5a564f);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
+  }
+  .hl .holder {
+    background: var(--hazard);
+    border-color: var(--on-hazard);
+  }
+
+  /* current drawer: pulled out, tan label (Highlights keeps yellow) */
+  [aria-current] .interior {
+    height: 1.9rem;
+  }
+  [aria-current] .face {
+    transform: translateY(3px) scale(1.03);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 14px 22px rgba(0, 0, 0, 0.6);
+  }
+  [aria-current]:not(.hl) .holder {
+    background: var(--folder);
+    border-color: var(--folder-edge);
+  }
+
+  /* phone: a short cabinet with thin drawers, sitting above the page */
+  @media (max-width: 46rem) {
+    .cabinet {
+      position: relative;
+      top: auto;
+      gap: 0.35rem;
+      padding: 0.45rem 0.45rem 0.7rem;
+    }
+    .interior {
+      display: none;
+    }
+    .face {
+      height: 3.3rem;
+      gap: 0.3rem;
+    }
+    .holder {
+      min-width: 6.5rem;
+      font-size: 0.7rem;
+      padding: 0.04rem 0.55rem;
+    }
+    .handle {
+      width: 2.8rem;
+      height: 0.35rem;
+    }
+    [aria-current] .face {
+      z-index: 2;
+      transform: scale(1.045) translateY(2px);
+      border-color: #5d584f;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 18px rgba(0, 0, 0, 0.7);
+    }
+  }
+</style>

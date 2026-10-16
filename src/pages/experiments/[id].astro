@@ -1,0 +1,84 @@
+---
+// One template that makes a page for every visible experiment.
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ExperimentTag from '../../components/ExperimentTag.astro';
+import { getDrawer } from '../../data/drawers';
+import { expNumber, getVisibleExperiments } from '../../lib/experiments';
+
+export async function getStaticPaths() {
+  const experiments = await getVisibleExperiments();
+  return experiments.map((exp) => ({
+    params: { id: exp.id },
+    props: { exp },
+  }));
+}
+
+const { exp } = Astro.props;
+const { Content } = await render(exp);
+const drawer = getDrawer(exp.data.drawer)!;
+---
+<BaseLayout title={exp.data.title} description={exp.data.summary} drawer={exp.data.drawer} onDrawerPage={false}>
+  <article>
+    <p class="crumb label"><a href={drawer.href}>{drawer.label}</a> / {expNumber(exp.data.number)}</p>
+    <h1>{exp.data.title}</h1>
+    <ExperimentTag data={exp.data} />
+
+    {exp.data.files && (
+      <aside class="files">
+        {exp.data.files.map((file) => (
+          <p>
+            <a href={file.href}>{file.label}</a>
+            {file.note && <span class="note">{file.note}</span>}
+          </p>
+        ))}
+      </aside>
+    )}
+
+    <div class="body">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    max-width: 42rem;
+  }
+  .crumb {
+    color: var(--soft);
+    margin: 0 0 0.6rem;
+  }
+  .crumb a {
+    color: var(--soft);
+  }
+  .crumb a:hover {
+    color: var(--on-hazard);
+  }
+  h1 {
+    font-size: clamp(1.9rem, 4vw, 2.5rem);
+    line-height: 1.12;
+    margin-bottom: 1rem;
+  }
+  .files {
+    margin: 0 0 1.75rem;
+    padding: 1rem 1.25rem;
+    background: var(--raised);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--folder);
+  }
+  .files p {
+    margin: 0.25rem 0;
+  }
+  .note {
+    display: block;
+    color: var(--soft);
+  }
+  .body :global(h2) {
+    font-size: 1.35rem;
+    margin: 2rem 0 0.5rem;
+  }
+  .body :global(p) {
+    margin: 0 0 1rem;
+  }
+</style>

@@ -1,0 +1,67 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DrawerList from '../components/DrawerList.astro';
+import { getHighlights } from '../lib/experiments';
+import seacow from '../assets/seacow-bone.png';
+
+const highlights = await getHighlights();
+---
+<BaseLayout drawer="highlights">
+  <section class="hero" slot="hero">
+    <div>
+      <h1>Figuring it out by building it.</h1>
+      <p class="sub">Experiments in AI, Linux, hardware, and whatever’s next. Some succeed. Some fail spectacularly. All of them teach me something.</p>
+    </div>
+    <Image
+      class="seacow"
+      src={seacow}
+      alt="Mad Seacow, a sea cow in a lab coat holding a flask"
+      widths={[240, 360, 480, 720]}
+      sizes="(max-width: 46rem) 11rem, 15rem"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </section>
+
+  <DrawerList drawer="highlights" experiments={highlights} headingLevel="h2" />
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    padding: 2.5rem 0 2rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.8rem;
+  }
+  .sub {
+    color: var(--soft);
+    font-size: 1.2rem;
+    margin: 0;
+    max-width: 31rem;
+  }
+  .seacow {
+    width: 100%;
+    max-width: 15rem;
+    justify-self: end;
+  }
+  @media (max-width: 46rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      padding: 1.75rem 0 1.25rem;
+    }
+    .seacow {
+      max-width: 11rem;
+      justify-self: start;
+      order: -1;
+    }
+  }
+</style>
