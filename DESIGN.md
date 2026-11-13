@@ -88,7 +88,7 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 
 ## Experiment page
 - Breadcrumb (drawer / EXP number), title, a tag strip (bone top line, not tan): Status · Type · Year. No lesson line: the body is the reviewed copy only.
-- Section order (set by EXP 002, the Portrait): intro → proof photo → at a glance → experience → calls I made → how it works (+ technical notes) → deep-dive sections → what broke → what it taught me → the finish → who did what → looking back. "What it cost" is optional and slots in when an experiment has one (usually work tools).
+- Section order (set by EXP 002, the Portrait): intro → proof photo → at a glance → experience → intentional choices → how it works (+ technical notes) → deep-dive sections → what broke → what it taught me → the finish → who did what → looking back. "What it cost" is optional and slots in when an experiment has one (usually work tools).
 - Body text max width about 42rem; images can use the full column.
 - Bottom: concept chips, then links back to the drawer and to About. No "next experiment" placeholder.
 

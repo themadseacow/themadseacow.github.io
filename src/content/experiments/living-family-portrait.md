@@ -41,7 +41,7 @@ Nothing animates. Between changes, the picture sits still, like a print. Then yo
   <div><dt>My role</dt><dd>Concept, requirements, art direction, hardware setup, integration evaluation, placement calibration, and acceptance testing.</dd></div>
   <div><dt>Development</dt><dd>AI-assisted implementation using ChatGPT, Codex, and Claude Code.</dd></div>
 </dl>
-<p class="own">I directed the project and tested the results. The coding agents wrote the software, and an artist created the family and house artwork.</p>
+<p class="own">I decided how it would work and what it would do. The coding agents wrote how the code executed, and an artist created the family and house artwork.</p>
 </section>
 
 ## A day in the picture
@@ -58,7 +58,7 @@ Family members appear around the house and yard during the day and move inside a
 
 Movement usually happens at intervals of one to two hours, with occasional holds. I wanted an object that quietly belongs in a room, with enough variation to keep surprising us.
 
-## Calls I made
+## Intentional choices
 
 <div class="calls">
 
