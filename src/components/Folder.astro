@@ -21,7 +21,7 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
       <div class="body">
         {data.thumb && (
           <span class="snap" aria-hidden="true">
-            <img src={data.thumb} width="480" height="315" loading="lazy" decoding="async" alt="" />
+            <img src={data.thumb} width="560" height="408" loading="lazy" decoding="async" alt="" />
             <svg class="clip" viewBox="0 0 14 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
               <path d="M9 10V27a2.5 2.5 0 0 1-5 0V6a4 4 0 0 1 8 0v22a5.5 5.5 0 0 1-11 0V12" />
             </svg>
@@ -155,7 +155,7 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
   }
   .snap img {
     width: 100%;
-    aspect-ratio: 480 / 315;
+    aspect-ratio: 560 / 408;
     object-fit: cover;
   }
   .clip {
