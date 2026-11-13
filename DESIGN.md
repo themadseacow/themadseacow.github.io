@@ -13,7 +13,8 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 ## Name and tagline
 - Always **Mad Seacow** (never "Sea Cow"). Handle: themadseacow.
 - **Headline (decided Oct 15, for now): "Figuring it out by building it."** Sentence case. Don't change it without asking.
-- Subline (decided Oct 15, my words, use exactly): **"Experiments in AI, Linux, hardware, and whatever's next. Some succeed. Some fail spectacularly. All of them teach me something."**
+- Kicker under the headline (decided Nov 13, my words, use exactly): **"Ideas into working things."** Short typewriter label.
+- Intro paragraphs (decided Nov 13, my words, use exactly): **"I build tools, automations, and the occasional thing that belongs on a wall. Some solve problems at work. Others start with “could I make that?”"** then **"These are the projects, the decisions behind them, and what it took to get them working."**
 
 ## Color (dark only, no light mode)
 | Token | Value | Job |
@@ -26,7 +27,7 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 | `--folder` | `#d6be8c` | **tan = "you can open this"**: folder tabs, current drawer |
 | `--hazard` | `#f5c518` | **yellow = "look here"**: the Highlights drawer label, status stamps, link underline. Never on folders. Use sparingly. Always dark text on yellow, never yellow body text. |
 
-- **Color rule:** tan only on things you can open or click (folder tabs/backs, the open drawer). Labels like "Learned" are soft gray. No other colors.
+- **Color rule:** tan only on things you can open or click (folder tabs/backs, the open drawer). Labels like "What I learned" are soft gray. No other colors.
 - Never pure black or pure white. Body text weight is slightly heavier on dark (about 430).
 
 ## Type
@@ -66,13 +67,13 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 
 ## Folders (how an experiment appears in a list)
 - **The tab is the metaphor; the body is a clean modern row.** Style "B" in the mockup: the tan **back of the folder** shows as a strip behind the row, with the tab attached to it. The row itself is dark (`--raised`).
-- Row shows: title, one-line summary, "Learned" one-liner, status stamp, type · year, concept chips, "Open file →".
+- Row shows: title, one-line summary, a short description of the project (`description`, one or two sentences, soft gray; the lesson stays on the experiment page only), status stamp, type · year, concept chips, "Open file →".
 - **Highlights:** look exactly like every other folder (all tan, including on phone). The yellow Highlights drawer label is what marks them. No yellow on folders, ever: yellow next to tan clashes.
 - **Hover:** the folder back and tab lift up out of the row; the row gets a shadow.
 - Not-yet-written items: dashed outline, muted.
 - **Snapshot:** one small real artifact per experiment (optional `thumb` field), so lists show pictures of real things at a glance.
   - Only on folder rows in the lists. Never on the cabinet or its drawers, never on the experiment page (images run full width there).
-  - Far left inside the dark body; title, summary, Learned and chips sit beside it. A little wider than tall, about the height of the text block.
+  - Far left inside the dark body; title, summary, description and chips sit beside it. A little wider than tall, about the height of the text block.
   - Thin bone border like a photo print, slight shadow, tilted about 1.5°, top edge poking just above the card.
   - One flat outline paperclip (inline SVG, bone) over the top edge. Same angle and position on every row. Never tan or yellow.
   - Lifts the same 6px as the folder back on hover, so it reads as clipped to it; no animation of its own. Unwritten rows get none. Hidden on phone (tabs and titles only).

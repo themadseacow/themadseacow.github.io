@@ -30,10 +30,10 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
         <div>
           <Title class="title">{data.title}</Title>
           {data.summary ? <p class="line">{data.summary}</p> : dev && <p class="line ph">[Summary: not in frontmatter yet]</p>}
-          {data.lesson ? (
-            <p class="lesson"><b>Learned</b>{data.lesson}</p>
+          {data.description ? (
+            <p class="desc">{data.description}</p>
           ) : (
-            dev && <p class="lesson"><b>Learned</b><span class="ph">[Lesson: not in frontmatter yet]</span></p>
+            dev && <p class="desc ph">[Description: not in frontmatter yet]</p>
           )}
         </div>
         <div class="side">
@@ -122,18 +122,10 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
     margin: 0;
     font-size: 1rem;
   }
-  .lesson {
+  .desc {
     margin: 0.45rem 0 0;
     font-size: 0.95rem;
     color: var(--soft);
-  }
-  .lesson b {
-    margin-right: 0.4rem;
-    font-family: var(--type);
-    font-weight: 700;
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
   /* snapshot: a small photo print clipped to the folder (DESIGN.md, Folders) */
   .has-snap .body {

@@ -8,6 +8,7 @@ type: Hardware
 date: 2026-11-13
 summary: "Someone could spend a day in the room and notice nothing. That’s the magic."
 lesson: "Make requirements explicit, keep decisions inspectable, and verify the result where it will actually be used."
+description: "A framed e-paper portrait that responds to real weather, time, and seasons. Powered by a Raspberry Pi, with a custom visual editor for arranging the scene."
 concepts: [Hardware, Claude Code, APIs, State, E-paper]
 thumb: /experiments/portrait/portrait-thumb.jpg
 draft: false

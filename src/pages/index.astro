@@ -11,7 +11,9 @@ const highlights = await getHighlights();
   <section class="hero" slot="hero">
     <div>
       <h1>Figuring it out by building it.</h1>
-      <p class="sub">Experiments in AI, Linux, hardware, and whatever’s next. Some succeed. Some fail spectacularly. All of them teach me something.</p>
+      <p class="kicker">Ideas into working things.</p>
+      <p class="sub">I build tools, automations, and the occasional thing that belongs on a wall. Some solve problems at work. Others start with “could I make that?”</p>
+      <p class="sub">These are the projects, the decisions behind them, and what it took to get them working.</p>
     </div>
     <Image
       class="seacow"
@@ -41,11 +43,24 @@ const highlights = await getHighlights();
     letter-spacing: -0.01em;
     margin-bottom: 0.8rem;
   }
+  /* short typewriter kicker under the headline */
+  .kicker {
+    margin: 0 0 1rem;
+    font-family: var(--type);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
   .sub {
     color: var(--soft);
     font-size: 1.2rem;
     margin: 0;
     max-width: 31rem;
+  }
+  .sub + .sub {
+    margin-top: 0.75rem;
   }
   .seacow {
     width: 100%;

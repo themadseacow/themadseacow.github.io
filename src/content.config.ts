@@ -17,7 +17,9 @@ const experiments = defineCollection({
     type: z.string().optional(),
     date: z.coerce.date().optional(),
     summary: z.string().optional(), // one line
-    lesson: z.string().optional(), // one line
+    lesson: z.string().optional(), // one line; shown on the experiment page, not on cards
+    // One or two sentences on what the project is. Shown on folder rows in the lists.
+    description: z.string().optional(),
     concepts: z.array(z.string()).default([]),
     // Snapshot on the folder row: one real artifact, e.g. '/experiments/portrait/portrait-thumb.jpg'.
     thumb: z.string().optional(),
