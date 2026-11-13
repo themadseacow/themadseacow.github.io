@@ -13,7 +13,7 @@ const experiments = defineCollection({
     drawer: z.enum(['work', 'personal']),
     // 1–3 puts it in the Highlights drawer, in that order.
     highlight: z.number().int().min(1).max(3).optional(),
-    case_status: z.enum(['Running', 'Concluded', 'Failed', 'Abandoned']).optional(),
+    case_status: z.enum(['Running', 'Complete', 'Failed', 'Abandoned']).optional(),
     type: z.string().optional(),
     date: z.coerce.date().optional(),
     summary: z.string().optional(), // one line

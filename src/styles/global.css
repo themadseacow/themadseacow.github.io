@@ -250,3 +250,10 @@ a:hover {
     animation: none !important;
   }
 }
+
+/* In-page jumps (e.g. "Watch the physical display refresh ↓") glide, unless motion is reduced */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}

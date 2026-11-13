@@ -60,7 +60,7 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 ## Experiments (what we call each project)
 - Every project is an **Experiment**, never "case file" or "project" in the UI. (Case-file language belongs only to Dead Air.)
 - Numbered across the whole cabinet in the order built: **EXP 001, EXP 002, ...** The number is the folder tab.
-- Status stamps use lab words: **Running · Concluded · Failed · Abandoned**.
+- Status stamps: **Running · Complete · Failed · Abandoned**. ("Complete", not "Concluded": concluded sounds like giving up.)
 - Next up items are **Proposed 01, Proposed 02, ...** (experiments not run yet).
 - Unwritten round-two work: tab reads **Not filed**.
 
@@ -70,7 +70,7 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 - **Highlights:** look exactly like every other folder (all tan, including on phone). The yellow Highlights drawer label is what marks them. No yellow on folders, ever: yellow next to tan clashes.
 - **Hover:** the folder back and tab lift up out of the row; the row gets a shadow.
 - Not-yet-written items: dashed outline, muted.
-- **No cost on folders or tags.** Pricing breakdowns live inside the write-up only.
+- **No cost on folders or tags.** Cost is **optional per experiment**: work tools usually include it (cost per result, time saved); personal experiments usually skip it. If there's no cost, the experiment page hides that section entirely.
 ## Next up
 - Things I want to learn or build but haven't started (e.g. SQL, Python). Each one is a dashed "not built yet" folder: title + one line on why.
 - Keep it short and current. A stale list looks worse than none.
@@ -80,8 +80,17 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 
 ## Experiment page
 - Breadcrumb (drawer / EXP number), title, a tag strip (bone top line, not tan): Status · Type · Year · What I learned.
-- Sections: One-screen summary · The original goal · What actually happened · What I decided vs. what the AI decided · What broke · What it cost · What I'd do differently.
-- Reading width about 42rem.
+- Section order (set by EXP 002, the Portrait): intro → proof photo → at a glance → experience → calls I made → how it works (+ technical notes) → deep-dive sections → what broke → what it taught me → the finish → who did what → looking back. "What it cost" is optional and slots in when an experiment has one (usually work tools).
+- Body text max width about 42rem; images can use the full column.
+- Bottom: concept chips, then links back to the drawer and to About. No "next experiment" placeholder.
+
+## Page design rules
+- 2px corners everywhere. No soft rounded cards.
+- Fewer boxed sections; let images break up the text. "At a glance" is plain rows with rules, "Who did what" is three columns with no boxes.
+- Long technical detail (component tables, feature lists) goes in a collapsible "Technical notes" section.
+- Label every image in its caption: **Photo**, **Video**, **Software render**, **Screenshot** or **Software conversion**. Every image also gets descriptive alt text.
+- Video: controls, muted, plays inline, poster image, never autoplay.
+- No bracketed placeholders on a live page.
 
 ## Motion
 - Two or three small, meaningful animations: drawer slide, folder pull, page transition. Nothing else moves.
