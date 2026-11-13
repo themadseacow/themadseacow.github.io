@@ -119,7 +119,9 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
   }
   .desc {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1rem; /* a touch under body text (1.125rem) */
+    font-weight: 400;
+    color: var(--soft);
   }
   /* snapshot: a small photo print clipped to the folder (DESIGN.md, Folders) */
   .has-snap .body {
