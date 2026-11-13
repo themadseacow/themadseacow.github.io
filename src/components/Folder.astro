@@ -15,10 +15,18 @@ const year = data?.date?.getFullYear();
 const meta = [data?.type, year].filter(Boolean).join(' · ');
 ---
 {data ? (
-  <li class="file">
+  <li class:list={['file', { 'has-snap': data.thumb }]}>
     <a href={`/experiments/${exp!.id}/`}>
       <span class="tab label">{expNumber(data.number)}</span>
       <div class="body">
+        {data.thumb && (
+          <span class="snap" aria-hidden="true">
+            <img src={data.thumb} width="480" height="315" loading="lazy" decoding="async" alt="" />
+            <svg class="clip" viewBox="0 0 14 36" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+              <path d="M9 10V27a2.5 2.5 0 0 1-5 0V6a4 4 0 0 1 8 0v22a5.5 5.5 0 0 1-11 0V12" />
+            </svg>
+          </span>
+        )}
         <div>
           <Title class="title">{data.title}</Title>
           {data.summary ? <p class="line">{data.summary}</p> : dev && <p class="line ph">[Summary: not in frontmatter yet]</p>}
@@ -127,6 +135,38 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  /* snapshot: a small photo print clipped to the folder (DESIGN.md, Folders) */
+  .has-snap .body {
+    grid-template-columns: auto 1fr auto;
+  }
+  .has-snap .chips {
+    grid-column: 2 / -1;
+  }
+  .snap {
+    position: relative;
+    grid-row: 1;
+    align-self: start;
+    width: 9rem;
+    margin-top: -1.45rem; /* top edge pokes just above the card */
+    padding: 3px;
+    background: var(--text);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.45);
+    transform: rotate(-1.5deg);
+  }
+  .snap img {
+    width: 100%;
+    aspect-ratio: 480 / 315;
+    object-fit: cover;
+  }
+  .clip {
+    position: absolute;
+    top: -1.05rem;
+    right: 1.4rem;
+    width: 0.8rem;
+    height: 2.05rem;
+    color: var(--text);
+    filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+  }
   .side {
     display: flex;
     flex-direction: column;
@@ -164,6 +204,12 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
   .file:not(.later):hover .tab,
   .file:focus-within .tab {
     transform: translateY(-6px);
+  }
+  /* the snapshot is clipped to the folder, so it rises the same 6px as the back
+     (5px here plus the row's own 1px) */
+  .file > a:hover .snap,
+  .file:focus-within .snap {
+    transform: translateY(-5px) rotate(-1.5deg);
   }
   .file > a:hover .body,
   .file > a:focus-visible .body {
@@ -204,8 +250,16 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
   }
 
   @media (max-width: 40rem) {
-    .body {
+    .body,
+    .has-snap .body {
       grid-template-columns: 1fr;
+    }
+    /* phone: tabs and titles only, so no snapshot */
+    .snap {
+      display: none;
+    }
+    .has-snap .chips {
+      grid-column: 1 / -1;
     }
     .side {
       flex-direction: row;

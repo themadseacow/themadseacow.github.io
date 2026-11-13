@@ -70,6 +70,13 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 - **Highlights:** look exactly like every other folder (all tan, including on phone). The yellow Highlights drawer label is what marks them. No yellow on folders, ever: yellow next to tan clashes.
 - **Hover:** the folder back and tab lift up out of the row; the row gets a shadow.
 - Not-yet-written items: dashed outline, muted.
+- **Snapshot:** one small real artifact per experiment (optional `thumb` field), so lists show pictures of real things at a glance.
+  - Only on folder rows in the lists. Never on the cabinet or its drawers, never on the experiment page (images run full width there).
+  - Far left inside the dark body; title, summary, Learned and chips sit beside it. A little wider than tall, about the height of the text block.
+  - Thin bone border like a photo print, slight shadow, tilted about 1.5°, top edge poking just above the card.
+  - One flat outline paperclip (inline SVG, bone) over the top edge. Same angle and position on every row. Never tan or yellow.
+  - Lifts the same 6px as the folder back on hover, so it reads as clipped to it; no animation of its own. Unwritten rows get none. Hidden on phone (tabs and titles only).
+  - Portrait: `portrait-thumb.jpg`. Later: a Dead Air evidence page for the Mystery Pipeline, the funnel chart for Venture.
 - **No cost on folders or tags.** Cost is **optional per experiment**: work tools usually include it (cost per result, time saved); personal experiments usually skip it. If there's no cost, the experiment page hides that section entirely.
 ## Next up
 - Things I want to learn or build but haven't started (e.g. SQL, Python). Each one is a dashed "not built yet" folder: title + one line on why.

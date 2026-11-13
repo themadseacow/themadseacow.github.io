@@ -19,6 +19,8 @@ const experiments = defineCollection({
     summary: z.string().optional(), // one line
     lesson: z.string().optional(), // one line
     concepts: z.array(z.string()).default([]),
+    // Snapshot on the folder row: one real artifact, e.g. '/experiments/portrait/portrait-thumb.jpg'.
+    thumb: z.string().optional(),
     // Downloads shown in a box on the experiment page, e.g. the Dead Air PDF.
     files: z
       .array(z.object({ label: z.string(), href: z.string(), note: z.string().optional() }))

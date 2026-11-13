@@ -9,6 +9,7 @@ date: 2026-11-13
 summary: "Someone could spend a day in the room and notice nothing. That’s the magic."
 lesson: "Make requirements explicit, keep decisions inspectable, and verify the result where it will actually be used."
 concepts: [Hardware, Claude Code, APIs, State, E-paper]
+thumb: /experiments/portrait/portrait-thumb.jpg
 draft: false
 ---
 
