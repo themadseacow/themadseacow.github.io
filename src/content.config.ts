@@ -16,8 +16,8 @@ const experiments = defineCollection({
     case_status: z.enum(['Running', 'Complete', 'Failed', 'Abandoned']).optional(),
     type: z.string().optional(),
     date: z.coerce.date().optional(),
-    summary: z.string().optional(), // one line
-    lesson: z.string().optional(), // one line; shown on the experiment page, not on cards
+    summary: z.string().optional(), // one line; used as the experiment page's search/share description
+    lesson: z.string().optional(), // one line; kept for reference, not shown on the site
     // One or two sentences on what the project is. Shown on folder rows in the lists.
     description: z.string().optional(),
     concepts: z.array(z.string()).default([]),

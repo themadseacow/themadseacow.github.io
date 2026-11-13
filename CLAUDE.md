@@ -38,8 +38,8 @@ Read `DESIGN.md`, then open `design/mockup-v8.html` in a browser and click throu
 - `design/`: mockups and references. Not part of the site.
 
 ## Experiment fields (frontmatter)
-`title`, `number` (shown as "EXP 001"; order built), `drawer` (`work` | `personal`), `highlight` (1–3 or empty), `case_status`, `type`, `date`, `summary` (one line), `lesson` (one line), `concepts` (list), `draft`.
-**No cost field.** Costs go in the write-up's "What it cost" section only.
+`title`, `number` (shown as "EXP 001"; order built), `drawer` (`work` | `personal`), `highlight` (1–3 or empty), `case_status`, `type`, `date`, `summary` (one line; search/share description only), `lesson` (one line; not shown on the site), `description` (one or two sentences on what it is; the only text line on folder cards), `concepts` (list), `thumb` (optional snapshot image), `draft`.
+**No cost field.** The "What it cost" section is optional per experiment: use it for work tools where cost tells a business story; personal experiments usually skip it. Hide the section when it's empty.
 
 Next up items are not experiments yet: keep them in one small data file (`src/data/next.json`: title, why, order).
 

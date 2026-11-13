@@ -27,7 +27,7 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 | `--folder` | `#d6be8c` | **tan = "you can open this"**: folder tabs, current drawer |
 | `--hazard` | `#f5c518` | **yellow = "look here"**: the Highlights drawer label, status stamps, link underline. Never on folders. Use sparingly. Always dark text on yellow, never yellow body text. |
 
-- **Color rule:** tan only on things you can open or click (folder tabs/backs, the open drawer). Labels like "What I learned" are soft gray. No other colors.
+- **Color rule:** tan only on things you can open or click (folder tabs/backs, the open drawer). Labels like "Status" and "Type" are soft gray. No other colors.
 - Never pure black or pure white. Body text weight is slightly heavier on dark (about 430).
 
 ## Type
@@ -67,13 +67,13 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 
 ## Folders (how an experiment appears in a list)
 - **The tab is the metaphor; the body is a clean modern row.** Style "B" in the mockup: the tan **back of the folder** shows as a strip behind the row, with the tab attached to it. The row itself is dark (`--raised`).
-- Row shows: title, one-line summary, a short description of the project (`description`, one or two sentences, soft gray; the lesson stays on the experiment page only), status stamp, type · year, concept chips, "Open file →".
+- Row shows: title, a short description of the project (`description`, one or two sentences; summary and lesson are not shown on cards), status stamp, type · year, concept chips, "Open file →".
 - **Highlights:** look exactly like every other folder (all tan, including on phone). The yellow Highlights drawer label is what marks them. No yellow on folders, ever: yellow next to tan clashes.
 - **Hover:** the folder back and tab lift up out of the row; the row gets a shadow.
 - Not-yet-written items: dashed outline, muted.
 - **Snapshot:** one small real artifact per experiment (optional `thumb` field), so lists show pictures of real things at a glance.
   - Only on folder rows in the lists. Never on the cabinet or its drawers, never on the experiment page (images run full width there).
-  - Far left inside the dark body; title, summary, description and chips sit beside it. A little wider than tall, about the height of the text block.
+  - Far left inside the dark body; title, description and chips sit beside it. A little wider than tall, about the height of the text block.
   - Thin bone border like a photo print, slight shadow, tilted about 1.5°, top edge poking just above the card.
   - One flat outline paperclip (inline SVG, bone) over the top edge. Same angle and position on every row. Never tan or yellow.
   - Lifts the same 6px as the folder back on hover, so it reads as clipped to it; no animation of its own. Unwritten rows get none. Hidden on phone (tabs and titles only).
@@ -87,7 +87,7 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 - Concept buttons filter files from every drawer, live, with a count ("2 files on Agents").
 
 ## Experiment page
-- Breadcrumb (drawer / EXP number), title, a tag strip (bone top line, not tan): Status · Type · Year · What I learned.
+- Breadcrumb (drawer / EXP number), title, a tag strip (bone top line, not tan): Status · Type · Year. No lesson line: the body is the reviewed copy only.
 - Section order (set by EXP 002, the Portrait): intro → proof photo → at a glance → experience → calls I made → how it works (+ technical notes) → deep-dive sections → what broke → what it taught me → the finish → who did what → looking back. "What it cost" is optional and slots in when an experiment has one (usually work tools).
 - Body text max width about 42rem; images can use the full column.
 - Bottom: concept chips, then links back to the drawer and to About. No "next experiment" placeholder.

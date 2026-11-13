@@ -29,7 +29,6 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
         )}
         <div>
           <Title class="title">{data.title}</Title>
-          {data.summary ? <p class="line">{data.summary}</p> : dev && <p class="line ph">[Summary: not in frontmatter yet]</p>}
           {data.description ? (
             <p class="desc">{data.description}</p>
           ) : (
@@ -118,14 +117,9 @@ const meta = [data?.type, year].filter(Boolean).join(' · ');
     font-size: 1.25rem;
     margin-bottom: 0.25rem;
   }
-  .line {
+  .desc {
     margin: 0;
     font-size: 1rem;
-  }
-  .desc {
-    margin: 0.45rem 0 0;
-    font-size: 0.95rem;
-    color: var(--soft);
   }
   /* snapshot: a small photo print clipped to the folder (DESIGN.md, Folders) */
   .has-snap .body {

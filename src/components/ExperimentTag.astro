@@ -1,5 +1,6 @@
 ---
-// The experiment tag: Status · Type · Year · What I learned, typed like a lab label.
+// The experiment tag: Status · Type · Year, typed like a lab label.
+// The lesson isn't shown here: the page body carries only the reviewed copy.
 // Empty fields show a dash instead of inventing anything.
 import type { Experiment } from '../lib/experiments';
 
@@ -14,7 +15,6 @@ const blank = '—';
   <div><dt>Status</dt><dd>{data.case_status ? <span class="stamp">{data.case_status}</span> : blank}</dd></div>
   <div><dt>Type</dt><dd>{data.type ?? blank}</dd></div>
   <div><dt>Year</dt><dd>{data.date?.getFullYear() ?? blank}</dd></div>
-  <div class="wide"><dt>What I learned</dt><dd>{data.lesson ?? blank}</dd></div>
 </dl>
 
 <style>
@@ -26,9 +26,6 @@ const blank = '—';
     padding: 1rem 0;
     border-top: 2px solid var(--text);
     border-bottom: 1px solid var(--rule);
-  }
-  .wide {
-    grid-column: 1 / -1;
   }
   dt {
     color: var(--soft);
