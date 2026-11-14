@@ -23,4 +23,8 @@ const dropHiddenPages = {
 export default defineConfig({
   site: 'https://themadseacow.github.io',
   integrations: [dropHiddenPages],
+  // Short addresses. On GitHub Pages each one becomes a tiny page that forwards on.
+  redirects: {
+    '/fathom': '/experiments/fathom/play/',
+  },
 });

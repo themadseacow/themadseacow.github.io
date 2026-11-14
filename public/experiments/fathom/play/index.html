@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FATHOM</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230e2f52'/%3E%3Crect x='5' y='12' width='22' height='11' rx='5.5' fill='%23e2622b'/%3E%3Crect x='13' y='7' width='7' height='6' rx='1.5' fill='%23e2622b'/%3E%3Ccircle cx='21' cy='17.5' r='2.6' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root {
+  --paper: #f7f1e3; --ink: #23201a; --rule: rgba(35, 32, 26, .18); --sub: #e2622b; --glow: #7df9d0;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html { background: #000; }
+body { margin: 0; font-family: var(--sans); color: var(--ink); font-size: 15px; line-height: 1.45; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: default; }
+[hidden] { display: none !important; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* the notebook strip that stays on top */
+#hud { position: sticky; top: 0; z-index: 5; background: var(--paper); border-bottom: 1px solid var(--rule); box-shadow: 0 2px 12px rgba(0, 0, 0, .18); }
+#hud .in { max-width: 980px; margin: 0 auto; padding: 8px 14px 8px; }
+.row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.stat { display: flex; align-items: baseline; gap: 6px; }
+.stat .lab { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+.stat .num { font-size: 17px; }
+.stat.main .num { font-size: 26px; font-weight: 600; }
+.stat .per { font-size: 12px; opacity: .65; font-family: var(--mono); }
+.nb { margin-left: auto; position: relative; background: var(--ink); color: var(--paper); border: 0; border-radius: 6px; padding: 4px 11px; font-size: 12.5px; }
+.nb i { position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--sub); border: 2px solid var(--paper); }
+.abil { padding: 6px 10px; border: 1px solid var(--ink); background: none; border-radius: 7px; font-size: 12.5px; font-family: var(--mono); }
+.abil:disabled { opacity: .5; border-color: var(--rule); }
+#book { position: fixed; inset: 0; z-index: 8; background: rgba(0, 0, 0, .5); display: grid; place-items: center; padding: 14px; }
+#book .box { background: var(--paper); color: var(--ink); border-radius: 12px; width: 100%; max-width: 600px; height: min(86vh, 720px); display: flex; flex-direction: column; overflow: hidden; --line: var(--rule); }
+.bookhead { display: flex; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+#booktabs { display: flex; gap: 4px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+#booktabs button, .bookhead > button { white-space: nowrap; background: none; border: 1px solid var(--rule); border-radius: 14px; padding: 4px 11px; font-size: 13px; }
+#booktabs button.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+#bookbody { padding: 12px 16px 18px; overflow: auto; flex: 1; }
+#bookbody .spec, #bookbody .log { max-height: none; }
+#bookbody h4 { margin: 16px 0 4px; font-family: var(--serif); font-weight: 500; font-size: 17px; }
+#bookbody h4 i { font-style: normal; font: 12px var(--mono); opacity: .7; margin-left: 6px; }
+#bookbody .glow b { color: #0b7d5f; text-shadow: none; }
+.ghost { margin-left: 0; background: none; border: 1px solid var(--rule); border-radius: 6px; padding: 3px 9px; font-size: 12px; opacity: .7; }
+.dive { margin-top: 6px; gap: 8px; }
+.seg { display: flex; border: 1px solid var(--ink); border-radius: 7px; overflow: hidden; }
+.seg button { background: none; border: 0; padding: 6px 10px; font-size: 13px; border-right: 1px solid var(--rule); }
+.seg button:last-child { border-right: 0; }
+.seg button.on { background: var(--ink); color: var(--paper); }
+#divebtn { position: relative; overflow: hidden; flex: 1; min-width: 110px; max-width: 260px; padding: 6px 14px; border: 1px solid var(--sub); background: var(--sub); color: #fff; border-radius: 7px; font-weight: 600; font-family: var(--mono); }
+#divebtn:disabled { background: #fff; color: var(--ink); border-color: var(--rule); }
+#divebtn span { position: relative; z-index: 1; }
+#diveprog { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(226, 98, 43, .28); }
+#scenewrap { position: relative; margin-top: 6px; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+#scene { display: block; width: 100%; height: 96px; }
+#goal { position: absolute; left: 8px; bottom: 5px; font: 11px var(--mono); color: #fff; background: rgba(20, 30, 40, .55); padding: 2px 7px; border-radius: 10px; pointer-events: none; }
+#goal:empty { display: none; }
+#drift { position: absolute; left: -34px; top: 30px; width: 32px; height: 38px; padding: 0; border: 0; background: none; transform: rotate(16deg); }
+#drift::before { content: ""; position: absolute; left: 10px; top: 12px; width: 12px; height: 22px; border-radius: 3px 3px 5px 5px; background: linear-gradient(#4f9e7c 28%, #f7f1e3 28% 72%, #4f9e7c 72%); box-shadow: 0 0 0 1px rgba(255, 255, 255, .5); }
+#drift::after { content: ""; position: absolute; left: 13.5px; top: 5px; width: 5px; height: 8px; background: #4f9e7c; border-radius: 2px 2px 0 0; border-top: 2px solid #b08a4a; }
+#drift.go { animation: drift 24s linear forwards, bob 2.2s ease-in-out infinite; }
+@keyframes drift { to { left: 100%; } }
+@keyframes bob { 50% { margin-top: 4px; } }
+.tools { margin-top: 6px; gap: 8px; flex-wrap: nowrap; }
+#chips { display: flex; gap: 5px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+#chips button { white-space: nowrap; background: none; border: 1px solid var(--rule); border-radius: 12px; padding: 2px 9px; font-size: 12px; }
+.seg.small button { padding: 3px 8px; font-size: 12px; }
+.tuner input { width: 100%; margin: 4px 0 8px; accent-color: var(--glow); }
+.tuner .status { min-height: 34px; letter-spacing: .04em; }
+.stage p { font-family: var(--serif); font-size: 16px; line-height: 1.5; animation: fadein .9s both; animation-delay: calc(var(--i) * 1.6s); }
+@keyframes fadein { from { opacity: 0; transform: translateY(5px); } }
+.boost { color: var(--sub); font-weight: 600; }
+.keys { opacity: .7; }
+#planline { margin: 5px 0 0; font-size: 12.5px; min-height: 18px; }
+#lastlog { margin: 4px 0 0; font-family: var(--serif); font-style: italic; font-size: 13.5px; opacity: .8; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* the ocean */
+#ocean { position: relative; }
+.zone { padding: 26px 14px 44px; }
+.zone > * { max-width: 980px; margin-left: auto; margin-right: auto; padding-left: 34px; }
+.zhead { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+.zhead h2 { margin: 0; font-family: var(--serif); font-weight: 500; font-size: 26px; letter-spacing: .01em; }
+.zdepth { font-family: var(--mono); font-size: 12px; opacity: .7; }
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; align-items: start; }
+.card { border: 1px solid var(--line); background: var(--cardbg); border-radius: 10px; padding: 12px 14px; }
+.card h3 { margin: 0 0 8px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; opacity: .75; }
+.card h3 i { font-style: normal; font-family: var(--mono); letter-spacing: 0; margin-left: 6px; }
+.card p { margin: 0 0 8px; }
+.note { font-size: 12.5px; opacity: .72; }
+.status { font-family: var(--mono); font-size: 12.5px; }
+.c-scoop { border: 0; background: none; padding: 0; }
+#scoop { width: 100%; padding: 22px; font-size: 20px; font-family: var(--serif); background: var(--ink); color: var(--paper); border: 0; border-radius: 12px; }
+#scoop:active { transform: translateY(1px); }
+#scoop.bump { animation: bump .18s; }
+@keyframes bump { 50% { transform: scale(.985); } }
+.c-scoop .note { margin: 6px 2px 0; }
+.buy { display: grid; grid-template-columns: 1fr auto; gap: 0 10px; width: 100%; text-align: left; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--line); background: var(--btnbg); border-radius: 8px; }
+.buy b { font-weight: 600; }
+.buy b i { font-style: normal; font-family: var(--mono); font-weight: 400; opacity: .7; }
+.buy span { grid-column: 1; font-size: 12px; opacity: .72; }
+.buy em { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-style: normal; font-family: var(--mono); font-size: 12.5px; text-align: right; }
+.buy:disabled { opacity: .45; }
+.buy:not(:disabled):hover { border-color: var(--sub); }
+.log { list-style: none; margin: 0; padding: 0; font-family: var(--serif); font-size: 14px; max-height: 260px; overflow: auto; }
+.log li { padding: 6px 0; border-top: 1px dashed var(--line); }
+.log li:first-child { border-top: 0; font-style: italic; }
+.spec { list-style: none; margin: 0; padding: 0; font-size: 13px; max-height: 340px; overflow: auto; }
+.spec li { padding: 5px 0; border-top: 1px dashed var(--line); }
+.spec li span { opacity: .75; }
+.spec .glow b { color: var(--glow); text-shadow: 0 0 10px rgba(125, 249, 208, .6); }
+.spec li.pic { display: flex; gap: 10px; align-items: center; }
+.icon { width: 44px; height: 32px; border-radius: 6px; flex: none; }
+.icon.sm { width: 33px; height: 24px; border-radius: 5px; }
+.iconrow { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 8px; }
+.log { max-height: 220px; }
+.spec .unknown { opacity: .55; font-style: italic; }
+.bar { height: 8px; border: 1px solid var(--line); border-radius: 5px; overflow: hidden; margin-bottom: 6px; }
+.bar i { display: block; height: 100%; background: var(--glow); box-shadow: 0 0 10px var(--glow); }
+.ledger { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ledger td { padding: 4px 0; border-top: 1px dashed var(--line); }
+.ledger td:last-child { text-align: right; font-family: var(--mono); }
+.signals { margin: 0 0 8px; padding-left: 20px; font-family: var(--mono); font-size: 12.5px; }
+.signals li { padding: 3px 0; }
+.signals .garbled { opacity: .6; }
+.ending { font-family: var(--serif); font-size: 17px; line-height: 1.5; }
+
+#z-shore { background: linear-gradient(#f7f1e3, #ecdcb9); --line: rgba(35, 32, 26, .2); --cardbg: rgba(255, 255, 255, .55); --btnbg: rgba(255, 255, 255, .7); }
+#z-sun { background: linear-gradient(#c9ece6, #4da0ab); min-height: 420px; --line: rgba(10, 40, 46, .28); --cardbg: rgba(255, 255, 255, .6); --btnbg: rgba(255, 255, 255, .7); color: #0d2a30; }
+#z-twi { background: linear-gradient(#4da0ab, #1d5475 28%, #0e2f52); min-height: 520px; }
+#z-mid { background: linear-gradient(#0e2f52, #071428 40%, #04091a); min-height: 640px; }
+#z-aby { background: linear-gradient(#04091a, #020510); min-height: 520px; }
+#z-tre { background: linear-gradient(#020510, #000 55%); min-height: 760px; padding-bottom: 120px; }
+#z-tre .panels { margin-top: 420px; grid-template-columns: minmax(280px, 560px); }
+#z-twi, #z-mid, #z-aby, #z-tre { color: #e6eff4; --line: rgba(255, 255, 255, .18); --cardbg: rgba(255, 255, 255, .05); --btnbg: rgba(255, 255, 255, .06); }
+#uncharted { min-height: 170px; padding: 70px 14px 40px; color: rgba(255, 255, 255, .55); font-family: var(--serif); font-style: italic; text-align: center; }
+#uncharted p { margin: 0; }
+.zone.reveal { animation: reveal 1.4s ease-out; }
+@keyframes reveal { from { opacity: 0; } }
+
+/* depth line with the little sub on it */
+#rail { position: absolute; top: 0; bottom: 0; left: max(22px, calc(50% - 482px)); width: 0; border-left: 1px dashed rgba(128, 128, 128, .55); pointer-events: none; }
+#submark { position: absolute; left: -11px; width: 22px; height: 11px; margin-top: -6px; background: var(--sub); border-radius: 6px 9px 9px 6px; transition: top .25s linear; }
+#submark::after { content: ""; position: absolute; right: 4px; top: 3px; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+#submark.boom { animation: boom .7s; }
+@keyframes boom { 0% { box-shadow: 0 0 0 0 rgba(226, 98, 43, .9); } 100% { box-shadow: 0 0 0 26px rgba(226, 98, 43, 0); } }
+#recmark { position: absolute; left: -6px; width: 12px; border-top: 2px solid var(--sub); }
+#recmark::after { content: attr(data-l); position: absolute; left: 16px; top: -9px; font: 10px var(--mono); color: var(--sub); white-space: nowrap; }
+
+#admin { background: #000; color: #9aa4aa; padding: 26px 14px 60px; font-size: 13px; }
+#admin > * { max-width: 980px; margin-left: auto; margin-right: auto; }
+#admin h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+#admin button { background: none; border: 1px solid #39424a; color: #c5ced4; border-radius: 6px; padding: 6px 10px; margin: 0 6px 6px 0; }
+#admin a { color: #c5ced4; }
+#savetext { width: 100%; height: 90px; margin-top: 8px; background: #0b0f14; color: #c5ced4; border: 1px solid #39424a; border-radius: 6px; font: 11px var(--mono); }
+
+#modal { position: fixed; inset: 0; z-index: 9; background: rgba(0, 0, 0, .55); display: grid; place-items: center; padding: 16px; }
+#modal .box { background: var(--paper); color: var(--ink); border-radius: 12px; padding: 18px 20px; max-width: 440px; width: 100%; max-height: 88vh; overflow: auto; }
+#modal h3 { margin: 0 0 8px; font-family: var(--serif); font-weight: 500; font-size: 21px; }
+#modal ul { margin: 0 0 10px; padding-left: 20px; }
+#modal button { background: var(--ink); color: var(--paper); border: 0; border-radius: 7px; padding: 8px 14px; }
+
+/* meeting mode: the dullest page on earth */
+#meeting { display: none; }
+body.meeting { background: #fff; }
+body.meeting #game, body.meeting #modal, body.meeting #book { display: none !important; }
+body.meeting #meeting { display: block; max-width: 760px; margin: 0 auto; padding: 28px 20px; font: 13px Arial, Helvetica, sans-serif; color: #333; min-height: 100vh; background: #fff; }
+#meeting h1 { font-size: 16px; margin: 0 0 4px; }
+#meeting p { color: #888; margin: 0 0 14px; font-size: 11px; }
+#meeting table { border-collapse: collapse; width: 100%; }
+#meeting td, #meeting th { border: 1px solid #d0d0d0; padding: 6px 8px; text-align: left; }
+#meeting th { background: #f0f0f0; font-weight: bold; }
+#meeting td:last-child { text-align: right; }
+
+@media (max-width: 560px) {
+  .zone > * { padding-left: 22px; }
+  .zhead h2 { font-size: 22px; }
+  .stat.main .num { font-size: 22px; }
+  #rail { left: 16px; }
+  #scene { height: 78px; }
+  #lastlog, .ghost { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div id="meeting">
+  <h1>Q4 Resource Tracker</h1>
+  <p>Working draft. Figures refresh automatically. Press Esc to close.</p>
+  <table><thead><tr><th>Line item</th><th>Current</th></tr></thead><tbody id="mtable"></tbody></table>
+</div>
+<div id="game">
+  <header id="hud"><div class="in">
+    <div class="row">
+      <div class="stat main"><span class="lab">Samples</span><span class="num" data-live="samples">0</span><span class="per" data-live="rate"></span></div>
+      <div class="stat" id="st-lessons" hidden><span class="lab">Lessons</span><span class="num" data-live="lessons"></span></div>
+      <div class="stat" id="st-record" hidden><span class="lab">Deepest</span><span class="num" data-live="record"></span></div>
+      <button class="nb" data-a="ui:book:log" title="Log, catalog, commendations, research, costs (N)">Notebook<i id="nbdot" hidden></i></button>
+      <button class="ghost" data-a="ui:meeting" title="Meeting mode (Esc)">Esc</button>
+    </div>
+    <div id="scenewrap"><canvas id="scene" aria-hidden="true"></canvas><span id="goal" data-live="goal"></span><button id="drift" data-a="ui:bottle" hidden aria-label="A bottle is floating by. Catch it."></button></div>
+    <div class="row dive" id="diverow" hidden>
+      <div class="seg"><button data-a="risk:0">Careful</button><button data-a="risk:1">Bold</button><button data-a="risk:2">Reckless</button></div>
+      <button id="divebtn" data-a="dive"><i id="diveprog"></i><span data-live="divelabel">Dive</span></button>
+      <button class="abil" id="pingbtn" data-a="ping" hidden title="Sonar ping: the next dive brings back 3 times the haul. Recharges in 5 minutes. (P)"><span data-live="ping"></span></button>
+      <button class="abil" id="pepbtn" data-a="pep" hidden title="Pep talk: collectors work 5 times as hard for 30 seconds. Recharges in 10 minutes. (T)"><span data-live="pep"></span></button>
+    </div>
+    <p id="planline" data-live="plan" hidden></p>
+    <div class="row tools" id="toolrow" hidden><nav id="chips" aria-label="Jump to a zone"></nav><div class="seg small" title="How many to buy at once"><button data-a="ui:bulk:1">&times;1</button><button data-a="ui:bulk:10">&times;10</button><button data-a="ui:bulk:max">Max</button></div></div>
+    <p id="lastlog" data-live="lastlog"></p>
+  </div></header>
+  <main id="ocean"><div id="rail"><div id="recmark" hidden></div><div id="submark" hidden></div></div></main>
+  <footer id="admin">
+    <h3>Lab admin</h3>
+    <div><button data-a="ui:meeting">Meeting mode (Esc)</button><button data-a="ui:export">Export save</button><button data-a="ui:import">Import save</button><button data-a="ui:reset">Start over</button><button data-a="ui:skip" id="skipbtn" hidden>Debug: skip 1 hour</button></div>
+    <div id="adminbox" hidden><textarea id="savetext" spellcheck="false" aria-label="Save text"></textarea><div><button data-a="ui:copy">Copy</button><button data-a="ui:load">Load this save</button> <span id="adminmsg"></span></div></div>
+    <p id="savenote"></p>
+    <p class="keys">Keys: S scoop, D dive, 1 2 3 for the risk dial, P sonar ping, T pep talk, N notebook, Esc for meeting mode.</p>
+    <p>FATHOM saves in this browser every 15 seconds. To move to another computer, use Export save there and Import save here.</p>
+    <p class="keys">FATHOM. A <a href="https://themadseacow.github.io/">Mad Seacow</a> experiment.</p>
+  </footer>
+</div>
+<div id="book" hidden><div class="box"><div class="bookhead"><nav id="booktabs"></nav><button data-a="ui:closebook" aria-label="Close the notebook">Close</button></div><div id="bookbody"></div></div></div>
+<div id="modal" hidden><div class="box"><h3 id="mtitle"></h3><div id="mbody"></div><button data-a="ui:close">Carry on</button></div></div>
+<script>
+/*ENGINE-START*/
+/* ===== CONTENT TABLES: words and numbers you can edit without touching logic ===== */
+const FLOOR = 11000; // metres. The bottom.
+
+const ZONES = [
+  { id: 'shore', name: 'The Shore', alt: 'The Rim', from: 0, to: 0 },
+  { id: 'sun', name: 'Sunlight Zone', alt: 'The Shallow End', from: 0, to: 200 },
+  { id: 'twi', name: 'Twilight Zone', alt: 'The Glass Wall', from: 200, to: 1000 },
+  { id: 'mid', name: 'Midnight Zone', alt: 'The Filter Intake', from: 1000, to: 4000 },
+  { id: 'aby', name: 'The Abyss', alt: 'The Gravel', from: 4000, to: 6000 },
+  { id: 'tre', name: 'The Trench', alt: 'The Plug', from: 6000, to: FLOOR },
+];
+
+// Automatic collectors. cost = first one; each next one costs 15% more. rate = samples per second each.
+const GENS = [
+  { id: 'bucket', zone: 'shore', name: 'Bucket', cost: 10, rate: 0.2, desc: 'Sits there. Fills up. A triumph of engineering.' },
+  { id: 'trap', zone: 'shore', name: 'Tide-pool trap', cost: 120, rate: 1.5, desc: 'A bucket with ambition.' },
+  { id: 'net', zone: 'sun', name: 'Drift net', cost: 1500, rate: 10, desc: 'Catches samples, and occasionally a boot.' },
+  { id: 'buoy', zone: 'sun', name: 'Sample buoy', cost: 25000, rate: 80, desc: 'Bobs with purpose.' },
+  { id: 'drone', zone: 'twi', name: 'Trawl drone', cost: 600000, rate: 900, desc: 'Autonomous. Mostly obedient.' },
+  { id: 'vent', zone: 'mid', name: 'Vent harvester', cost: 3e7, rate: 16000, desc: 'Parks next to a volcano. Does not complain.' },
+  { id: 'crawler', zone: 'aby', name: 'Trench crawler', cost: 2.5e9, rate: 400000, desc: 'Six legs. No questions.' },
+];
+
+// Owning this many of one collector doubles that collector, every time.
+const MILESTONES = [10, 25, 50, 100, 150, 200, 250, 300];
+
+// The research bench: one-off upgrades bought with samples. show = when it turns up on the bench.
+const RESEARCH = [
+  { id: 'scoop1', name: 'Ergonomic scoop', desc: 'Scoops are 3 times bigger', cost: 150, show: s => !!s.flags.bucket },
+  { id: 'scoop2', name: 'Two-flipper technique', desc: 'Scoops are 5 times bigger again', cost: 25000, show: s => !!s.flags.built },
+  { id: 'rack', name: 'Racks on the outside', desc: 'Dives bring back twice as much', cost: 4000, show: s => !!s.flags.firstDive },
+  { id: 'hose', name: 'Vacuum hose', desc: 'Dives bring back twice as much again', cost: 1.5e6, show: s => !!s.flags.twi },
+  { id: 'hose2', name: 'Wider hose', desc: 'And twice as much again', cost: 6e8, show: s => !!s.flags.mid },
+  { id: 'sub2', name: 'A second submarine', desc: 'Two subs dive together and bring back twice the haul', cost: 3e7, show: s => !!s.flags.twi && s.tier >= 2 },
+  { id: 'sub3', name: 'A third submarine', desc: 'Three subs. Half as much haul again', cost: 2e10, show: s => !!s.flags.aby },
+  { id: 'winch1', name: 'Express winch', desc: 'Dives take a quarter less time', cost: 60000, show: s => s.record >= 100 },
+  { id: 'winch2', name: 'Rocket winch', desc: 'A quarter less time again', cost: 2e9, show: s => !!s.flags.mid },
+  { id: 'card', name: 'Intern purchasing card', desc: 'Interns reinforce the hull themselves when there are samples to spare', cost: 40000, show: s => s.interns >= 2 },
+  { id: 'insure', name: 'Rebuild insurance', desc: 'Rebuilding a lost sub costs half', cost: 150000, show: s => s.subsLost >= 3 },
+  { id: 'bait', name: 'Bottle bait', desc: 'Bottles drift by twice as often', cost: 15000, show: s => !!s.flags.bottle },
+  { id: 'coffee', name: 'Better coffee', desc: 'The coffee boost becomes 5 times, for 2 minutes', cost: 3e6, show: s => !!s.flags.bottle && !!s.flags.twi },
+  { id: 'notes1', name: 'Better note-taking', desc: 'Implosions teach half as much again', cost: 300000, show: s => !!s.flags.lessons },
+  { id: 'notes2', name: 'Post-mortem meetings', desc: 'Half as much again, again', cost: 4e8, show: s => !!s.flags.mid },
+  { id: 'specnet', name: 'Jars with air holes', desc: 'Twice the chance of finding a specimen', cost: 500000, show: s => !!s.flags.twi },
+  { id: 'lamps', name: 'Efficient lamps', desc: 'Dives use half the lamp power', cost: 1e8, show: s => !!s.flags.mid },
+  { id: 'antenna', name: 'Bigger antenna', desc: 'Twice the signal fragments', cost: 1e10, show: s => !!s.flags.aby },
+];
+// two upgrades for every collector: the first turns up at 5 owned, the second at 25. Each doubles that collector.
+const GEN_UPS = {
+  bucket: ['Bigger buckets', 'Buckets with lids'], trap: ['Baited traps', 'Traps with tiny signage'], net: ['Finer mesh', 'Nets that reject boots'],
+  buoy: ['Solar buoys', 'Buoys with opinions'], drone: ['Drone firmware update', 'Drones that read the manual'],
+  vent: ['Heat shielding', 'Volcano loyalty scheme'], crawler: ['Two more legs', 'Crawler union contract'],
+};
+for (const g of GENS) GEN_UPS[g.id].forEach((name, i) => RESEARCH.push({
+  id: g.id + (i + 1), name, desc: g.name + 's collect twice as much', cost: g.cost * (i ? 1500 : 30), show: s => (s.gens[g.id] || 0) >= (i ? 25 : 5),
+}));
+
+// Pages of the catalog. Finishing a page adds half as much again to everything.
+const SETS = [
+  { name: 'Sunlight page', from: 0, to: 5 }, { name: 'Twilight page', from: 6, to: 13 }, { name: 'Midnight page', from: 14, to: 21 },
+  { name: 'Abyss page', from: 22, to: 26 }, { name: 'Trench page', from: 27, to: 29 },
+];
+
+const SUBS = [
+  { name: 'Mk I "Napkin Sketch"', cap: 25 },
+  { name: 'Mk II "Bathtub"', cap: 42, lessons: 15, samples: 20000 },
+  { name: 'Mk III "Stubborn"', cap: 56, lessons: 80, samples: 6e6 },
+  { name: 'Mk IV "Last Resort"', cap: 67, lessons: 300, samples: 1.5e9 },
+];
+
+// The risk dial. f = how far past (or short of) the hull rating the dive goes. p = chance of implosion.
+const RISKS = [
+  { name: 'Careful', f: 0.9, p: 0 },
+  { name: 'Bold', f: 1.1, p: 0.3 },
+  { name: 'Reckless', f: 1.3, p: 0.65 },
+];
+
+// Permanent upgrades bought with Lessons. They survive draining the tank.
+const PERMS = [
+  { id: 'glass', name: 'Thicker glass', max: 10, base: 3, grow: 1.5, desc: '+5% hull rating' },
+  { id: 'winch', name: 'Faster winch', max: 5, base: 4, grow: 2, desc: 'Dives 10% quicker' },
+  { id: 'spare', name: 'Spare parts drawer', max: 5, base: 2, grow: 2, desc: 'Rebuilding costs 15% less' },
+  { id: 'nerve', name: 'Knowing when to stop', max: 5, base: 5, grow: 2, desc: '3% fewer implosions' },
+  { id: 'blackbox', name: 'Black box', max: 3, base: 6, grow: 3, desc: 'Recover 15% of the haul from a lost sub' },
+  { id: 'paper', name: 'Publish a paper', max: 9999, base: 20, grow: 1.22, desc: '+5% to everything. "Ways Not To Build A Submarine, vol. {n}"' },
+];
+
+// Creatures found on dives. d = shallowest depth it lives at. glow = makes a little power in the Midnight Zone.
+const SPECIMENS = [
+  { d: 20, name: 'Apologetic Crab', desc: 'Walks sideways out of every conversation.' },
+  { d: 50, name: 'Common Sock Fish', desc: 'Always found alone. The other one is never located.' },
+  { d: 80, name: 'Lesser Spotted Blob', desc: 'The Greater Spotted Blob has not yet been spotted.' },
+  { d: 110, name: 'Kelp That Waves Back', desc: 'Friendly. Slightly unsettling.' },
+  { d: 150, name: 'Overconfident Sardine', desc: 'Believes it is the shark.' },
+  { d: 190, name: 'Sun Jelly', desc: 'Ninety-five percent water, five percent attitude.' },
+  { d: 220, name: 'Dimmer Switch Eel', desc: 'Never fully on.' },
+  { d: 300, name: 'Bureaucrat Squid', desc: 'Eight arms. Fills out forms with all of them.' },
+  { d: 400, name: 'Gulper of Modest Ambition', desc: 'Could swallow a whale. Prefers a sandwich.' },
+  { d: 500, name: 'Stern Hatchetfish', desc: 'Looks like that on purpose.' },
+  { d: 600, name: 'Unlicensed Moon Snail', desc: 'Operating without paperwork.' },
+  { d: 700, name: 'Sideways Whale', desc: 'Nobody has had the heart to tell it.' },
+  { d: 850, name: 'Twilight Loaf', desc: 'Probably a sponge. Possibly bread.' },
+  { d: 950, name: 'The Fish Formerly Known As Gary', desc: 'Has asked us to respect its privacy.' },
+  { d: 1100, glow: 1, name: 'Nightlight Angler', desc: 'Reads in bed.' },
+  { d: 1400, glow: 1, name: 'Annoyed Glow Worm', desc: 'Aquatic. Did not ask to be.' },
+  { d: 1700, glow: 1, name: 'Disco Jelly', desc: 'Has not stopped since the seventies.' },
+  { d: 2000, glow: 1, name: 'Vegetarian Vampire Squid', desc: 'It is a phase, says its mother.' },
+  { d: 2400, glow: 1, name: 'Blinking Thing', desc: 'We blinked first.' },
+  { d: 2800, glow: 1, name: 'Chandelier Siphonophore', desc: 'Forty metres long. Refuses to explain itself.' },
+  { d: 3200, glow: 1, name: 'Lamp Ray', desc: 'Flat, bright, and smug about both.' },
+  { d: 3700, glow: 1, name: 'Fish With Its Own Reading Light', desc: 'Halfway through a very long book.' },
+  { d: 4200, name: 'Flapping Octopus', desc: 'Cannot fly. Has tried.' },
+  { d: 4600, name: 'Sea Pig', desc: 'A real animal. Look it up. We will wait.' },
+  { d: 5000, name: 'Tripod Fish', desc: 'Stands around. Literally.' },
+  { d: 5400, name: 'Faceless Cusk', desc: 'It is fine. It does not want one.' },
+  { d: 5800, name: 'Abyssal Dust Bunny', desc: 'Suggests nobody has cleaned down here in a while.' },
+  { d: 7000, name: 'Trench Snail With A Mortgage', desc: 'Carries its house. Still paying for it.' },
+  { d: 9000, name: 'Something With Too Many Elbows', desc: 'We counted. Then we stopped counting.' },
+  { d: 10800, name: 'A Goldfish', desc: 'Ordinary pet-shop goldfish. Eleven kilometres down. It should not be here. It looks well fed.' },
+];
+
+// Transmissions decoded in the Abyss. cost = signal fragments.
+const SIGNALS = [
+  { cost: 2, text: '...tap. tap tap. tap...' },
+  { cost: 4, text: '...is this thing on...' },
+  { cost: 8, text: 'FEEDING AT NINE. DO NOT TAP THE GLASS.' },
+  { cost: 12, text: 'TANK 1: SALINITY NOMINAL. OCCUPANT UNUSUALLY BUSY.' },
+  { cost: 18, text: 'who keeps leaving tiny submarines in my tank' },
+  { cost: 26, text: 'THE DRAIN IS UNDER THE HATCH.' },
+];
+
+// Commendations. Each one earned adds 1% to everything, and they survive draining the tank. t = the test.
+const ACH = [
+  { id: 'wet', name: 'Wet Flipper', desc: 'Scoop something', t: s => s.total >= 1 },
+  { id: 'deleg', name: 'Delegation', desc: 'Own 10 buckets', t: s => (s.gens.bucket || 0) >= 10 },
+  { id: 'floats', name: 'It Floats', desc: 'Build a submarine', t: s => !!s.flags.built },
+  { id: 'boom1', name: 'Several Smaller Subs', desc: 'Lose a submarine', t: s => s.subsLost >= 1 },
+  { id: 'boom10', name: 'Slow Learner', desc: 'Lose 10 submarines', t: s => s.subsLost >= 10 },
+  { id: 'boom100', name: 'Fast Learner', desc: 'Lose 100 submarines', t: s => s.subsLost >= 100 },
+  { id: 'reck', name: 'Reckless Abandon', desc: 'Bring a sub home from a Reckless dive', t: s => !!s.flags.reckless },
+  { id: 'hire', name: 'Seacow Resources', desc: 'Hire an intern', t: s => s.interns >= 1 },
+  { id: 'hire8', name: 'Middle Management', desc: 'Fill the break room', t: s => s.interns >= K.internMax },
+  { id: 'd200', name: 'Out Of The Sun', desc: 'Reach 200 m', t: s => s.record >= 200 },
+  { id: 'd1000', name: 'Lights Out', desc: 'Reach 1,000 m', t: s => s.record >= 1000 },
+  { id: 'd4000', name: 'Not Whale Song', desc: 'Reach 4,000 m', t: s => s.record >= 4000 },
+  { id: 'floor', name: 'Rock Bottom', desc: 'Touch the floor', t: s => s.record >= FLOOR },
+  { id: 'spec10', name: 'Collector', desc: 'Catalog 10 specimens', t: s => s.spec.length >= 10 },
+  { id: 'specall', name: 'Completionist', desc: 'Catalog every specimen', t: s => s.spec.length >= SPECIMENS.length },
+  { id: 'gary', name: 'Respecting His Privacy', desc: 'Find the fish formerly known as Gary', t: s => s.spec.includes(13) },
+  { id: 'gold', name: 'Well Fed', desc: 'Find something that should not be down there', t: s => s.spec.includes(29) },
+  { id: 'paper', name: 'Peer Reviewed', desc: 'Publish a paper', t: s => (s.perm.paper || 0) >= 1 },
+  { id: 'paper10', name: 'Prolific', desc: 'Publish 10 papers', t: s => (s.perm.paper || 0) >= 10 },
+  { id: 'dive100', name: 'Frequent Diver', desc: 'Complete 100 dives', t: s => s.dives >= 100 },
+  { id: 'dive1k', name: 'Commuter', desc: 'Complete 1,000 dives', t: s => s.dives >= 1000 },
+  { id: 'mil', name: 'A Million Jars', desc: 'Collect a million samples', t: s => s.total >= 1e6 },
+  { id: 'bil', name: 'Storage Problem', desc: 'Collect a billion samples', t: s => s.total >= 1e9 },
+  { id: 'tril', name: 'Where Are We Keeping These', desc: 'Collect a trillion samples', t: s => s.total >= 1e12 },
+  { id: 'res10', name: 'Tinkerer', desc: 'Finish 10 research projects', t: s => s.res.length >= 10 },
+  { id: 'resall', name: 'Nothing Left To Invent', desc: 'Finish every research project', t: s => s.res.length >= RESEARCH.length },
+  { id: 'page', name: 'Page Turner', desc: 'Complete a page of the catalog', t: s => setsDone(s) >= 1 },
+  { id: 'hundred', name: 'Round Number', desc: 'Own 100 of one collector', t: s => GENS.some(g => (s.gens[g.id] || 0) >= 100) },
+  { id: 'bottle', name: 'Message Received', desc: 'Catch a bottle', t: s => !!s.flags.bottle },
+  { id: 'ears', name: 'Eavesdropper', desc: 'Decode all six transmissions', t: s => s.decoded >= SIGNALS.length },
+  { id: 'hatch', name: 'Curiosity', desc: 'Open the hatch', t: s => s.opened },
+  { id: 'tank2', name: 'Bigger Tank', desc: 'Drain the tank', t: s => s.tank >= 2 },
+  { id: 'tank3', name: 'All The Way Up', desc: 'Drain it again', t: s => s.tank >= 3 },
+];
+
+// Things the interns say. One turns up in the log every few minutes.
+const CHATTER = [
+  'An intern asks whether the snack budget survived the implosion. It did not.',
+  'Intern report: "the sub makes a noise." Which noise? "A new one."',
+  'Someone has labelled the buckets. One is labelled "bucket". Thorough.',
+  'The interns have named the sub. I was not consulted. It is called Kevin.',
+  'An intern has asked what the samples are for. I have promised to circle back.',
+  'Break room memo: the kelp in the fridge is a specimen. It was a specimen.',
+  'An intern suggests we build the whole sub out of the black box. Promoted.',
+  'Morale is high. Possibly the pressure.',
+  'The interns held a meeting about having fewer meetings. It ran long.',
+  'Found a sticky note on the hull: "you got this". Unclear who it is for.',
+  'An intern waved at something through the porthole. Something waved back.',
+  'Quarterly review of the buckets: exceeds expectations.',
+];
+
+// The Seacow's log. Keyed by event.
+const LOG = {
+  start: 'Day one. I have a beach, a bucket-shaped hole where a bucket should be, and a hypothesis.',
+  bucket: 'Observation: scooping by hand is beneath a scientist. Requisitioning a bucket.',
+  trap: 'The buckets are working unsupervised. I have never been prouder of anything.',
+  sub: 'I have drawn a submarine on a napkin. It looks seaworthy. Napkins are absorbent, which I am choosing to ignore.',
+  built: 'The sub is built. It has a window, a hatch, and a sticker that says "probably fine".',
+  firstDive: 'First dive. It went down. It came back. Science!',
+  firstBoom: 'The sub has become several smaller subs. Nobody was aboard; the interns swam home. Curiously, I feel I have LEARNED something.',
+  lessons: 'New notebook: "Lessons". Every implosion goes in it. It is going to be a thick notebook.',
+  intern: 'Three dives and my flipper is tired of the launch button. An intern could do this while I am in meetings.',
+  hired: 'Intern hired. They will launch dives and rebuild subs without being asked. They have asked about snacks.',
+  twi: '200 metres. The light is going. Things down here have started looking back. Starting a catalog.',
+  mid: '1,000 metres. No light at all. The sub needs lamps, and lamps need power. Some of the locals glow. I have an idea.',
+  dark: 'The lamps died early and the sub turned back. More glow tanks, or a bigger battery.',
+  aby: '4,000 metres. The radio is picking something up. It is not whale song. Whales do not use capital letters.',
+  tre: '6,000 metres. A trench. It goes down a long way. So do we.',
+  floor: 'Touchdown. 11,000 metres. The bottom of everything. There is a hatch here. Hatches do not occur in nature.',
+  hatch: 'Every transmission decoded and the floor reached. The hatch is unlocked. I am told curiosity is what gets sea cows.',
+  tier: 'New submarine. The last design taught us everything it could, mostly by exploding.',
+  tank2: 'Tank {n}. Bigger tank, same sea cow. I know what this is now. The labels have been corrected for honesty.',
+};
+
+/* ===== ENGINE: the rules. No screen code in here, so the simulator can run it too. ===== */
+const K = {
+  hullBase: 40, hullGrow: [1.3, 2.6, 1.75, 1.5], // samples for hull level 0, and growth per level for each sub (Mk I to IV)
+  cargoBase: 300, cargoGrow: 1.7, cargoMult: 1.3,
+  payout: 0.05, payoutPow: 2,        // dive haul = payout * depth^payoutPow
+  internFirst: 300, internBase: 2000, internGrow: 4, internMax: 8, // the first intern is cheap so the clicking stops early
+  glowBase: 150000, glowGrow: 1.25, glowRate: 0.02,
+  battBase: 400000, battGrow: 1.6, battCap: 60,
+  specBonus: 0.03, tankMult: 3, offlineCap: 8 * 3600,
+  diveSpeed: 0.6,                    // lower = quicker dives
+  pingCd: 300, pepCd: 600, pepTime: 30, // the two abilities: cooldowns and how long the pep talk lasts
+};
+
+function newState(tank, old) {
+  return {
+    v: 1, tank: tank || 1, samples: 0, total: 0, lessons: old ? old.lessons : 0,
+    record: 0, gens: {}, hull: 0, tier: 1, cargo: 0, sub: false, subsLost: 0, risk: 0, dive: null,
+    interns: 0, perm: old ? old.perm : {}, spec: [], power: 0, glow: 0, batt: 0, frags: 0, decoded: 0,
+    flags: {}, log: [], spent: {}, dives: 0, opened: false, trueEnd: old ? !!old.trueEnd : false,
+    res: [], cd: { ping: 0, pep: 0 }, ping: false, pep: 0,
+    ach: old ? old.ach : [], boost: null, bulk: old ? old.bulk : 1, newAch: null,
+    t: Date.now(), born: old ? old.born : Date.now(), last: null,
+  };
+}
+
+function fmt(n) {
+  if (n < 0) n = 0;
+  if (n < 10 && n % 1) return n.toFixed(1);
+  if (n < 1000) return String(Math.floor(n));
+  const u = ['K', 'M', 'B', 'T', 'Qa'];
+  let i = -1;
+  while (n >= 1000 && i < u.length - 1) { n /= 1000; i++; }
+  return (n < 10 ? n.toFixed(2) : n < 100 ? n.toFixed(1) : String(Math.floor(n))) + u[i];
+}
+function fmtTime(sec) {
+  sec = Math.max(0, Math.ceil(sec));
+  if (sec < 60) return sec + 's';
+  if (sec < 3600) return Math.floor(sec / 60) + 'm ' + (sec % 60) + 's';
+  return Math.floor(sec / 3600) + 'h ' + Math.floor((sec % 3600) / 60) + 'm';
+}
+
+function say(s, key, vars) {
+  let text = LOG[key] || key;
+  if (vars) for (const k in vars) text = text.replace('{' + k + '}', vars[k]);
+  s.log.push(text);
+  if (s.log.length > 60) s.log.shift();
+}
+function flag(s, name, logKey, vars) {
+  if (s.flags[name]) return false;
+  s.flags[name] = 1;
+  if (logKey) say(s, logKey, vars);
+  return true;
+}
+
+const P = (s, id) => s.perm[id] || 0;
+const G = (s, id) => s.gens[id] || 0;
+const R = (s, id) => s.res.includes(id);
+function setsDone(s) { let n = 0; for (const st of SETS) { let all = true; for (let i = st.from; i <= st.to; i++) if (!s.spec.includes(i)) all = false; if (all) n++; } return n; }
+function genOut(s, g) { // what all of one collector make together, before the global bonuses
+  const n = G(s, g.id); if (!n) return 0;
+  let m = 1;
+  for (const t of MILESTONES) if (n >= t) m *= 2;
+  if (R(s, g.id + '1')) m *= 2;
+  if (R(s, g.id + '2')) m *= 2;
+  return n * g.rate * m;
+}
+function mult(s) {
+  return Math.pow(K.tankMult, s.tank - 1) * (1 + K.specBonus * s.spec.length) * (1 + 0.05 * P(s, 'paper'))
+    * (1 + 0.01 * s.ach.length) * (s.boost ? s.boost.mult : 1) * Math.pow(1.5, setsDone(s));
+}
+function genRate(s) {
+  let r = 0;
+  for (const g of GENS) r += genOut(s, g);
+  return r * mult(s) * (1 + 0.1 * s.interns) * (s.pep > 0 ? 5 : 1);
+}
+function scoopSize(s) { return mult(s) * (R(s, 'scoop1') ? 3 : 1) * (R(s, 'scoop2') ? 5 : 1) + 0.2 * genRate(s); }
+function rating(s) { return 20 * Math.pow(1.1, s.hull) * (1 + 0.05 * P(s, 'glass')); }
+function hullCost(s) {
+  let c = K.hullBase, from = 0;
+  for (let i = 0; i < SUBS.length && from < s.hull; i++) {
+    const n = Math.min(s.hull, SUBS[i].cap) - from;
+    c *= Math.pow(K.hullGrow[i], n); from += n;
+  }
+  return c;
+}
+function rebuildCost(s) { return Math.max(100, 0.25 * hullCost(s)) * Math.pow(0.85, P(s, 'spare')) * (R(s, 'insure') ? 0.5 : 1); }
+function payout(s, depth) {
+  return K.payout * Math.pow(depth, K.payoutPow) * Math.pow(K.cargoMult, s.cargo) * mult(s)
+    * (R(s, 'rack') ? 2 : 1) * (R(s, 'hose') ? 2 : 1) * (R(s, 'hose2') ? 2 : 1) * (R(s, 'sub2') ? 2 : 1) * (R(s, 'sub3') ? 1.5 : 1);
+}
+function diveTime(s, depth) { return (20 + Math.pow(depth, 0.75)) * K.diveSpeed * Math.pow(0.9, P(s, 'winch')) * (R(s, 'winch1') ? 0.75 : 1) * (R(s, 'winch2') ? 0.75 : 1); }
+function lampUse(s) { return R(s, 'lamps') ? 0.5 : 1; }
+function powerCap(s) { return K.battCap * (1 + s.batt); }
+function powerRate(s) {
+  let glowers = 0;
+  for (const i of s.spec) if (SPECIMENS[i].glow) glowers++;
+  return s.flags.mid ? s.glow * K.glowRate + glowers * 0.005 : 0;
+}
+function diveDepth(d) { // where the sub is right now
+  const speed = d.target / (d.full / 2), el = d.dur - d.left;
+  return Math.max(0, el < d.full / 2 ? speed * el : d.target - speed * (el - d.full / 2));
+}
+function plan(s, risk) { // what a dive at this risk would do, before luck
+  const r = RISKS[risk], rate = rating(s);
+  let target = Math.min(FLOOR, rate * r.f), dark = false;
+  if (target > 1000) {
+    const reach = 1000 + s.power * 50 / lampUse(s);
+    if (reach < target) { target = Math.max(1000, reach); dark = true; }
+  }
+  const p = target > rate ? Math.max(0, r.p - 0.03 * P(s, 'nerve')) : 0;
+  return { target, p, dark, time: diveTime(s, target), haul: payout(s, target) * (s.ping ? 3 : 1) };
+}
+function zoneOpen(s, id) {
+  return id === 'shore' || !!s.flags[id];
+}
+
+// Everything the player can do. info() says if it exists yet and what it costs.
+function info(s, a) {
+  const [kind, arg] = a.split(':');
+  const no = { avail: false, cs: 0, cl: 0 };
+  switch (kind) {
+    case 'scoop': return { avail: true, cs: 0, cl: 0 };
+    case 'gen': {
+      const g = GENS.find(x => x.id === arg);
+      if (!g || !genVisible(s, g)) return no;
+      return { avail: true, cs: g.cost * Math.pow(1.15, G(s, g.id)), cl: 0 };
+    }
+    case 'build': return s.flags.sun && !s.sub ? { avail: true, cs: rebuildCost(s), cl: 0 } : no;
+    case 'hull': return s.flags.built && s.hull < SUBS[s.tier - 1].cap ? { avail: true, cs: hullCost(s), cl: 0 } : no;
+    case 'cargo': return s.flags.firstDive ? { avail: true, cs: K.cargoBase * Math.pow(K.cargoGrow, s.cargo), cl: 0 } : no;
+    case 'tier': {
+      const n = SUBS[s.tier];
+      return n && s.hull >= SUBS[s.tier - 1].cap ? { avail: true, cs: n.samples, cl: n.lessons } : no;
+    }
+    case 'intern': return s.flags.intern && s.interns < K.internMax
+      ? { avail: true, cs: s.interns ? K.internBase * Math.pow(K.internGrow, s.interns) : K.internFirst, cl: 0 } : no;
+    case 'perm': {
+      const p = PERMS.find(x => x.id === arg);
+      if (!p || !s.flags.lessons || P(s, p.id) >= p.max) return no;
+      return { avail: true, cs: 0, cl: Math.ceil(p.base * Math.pow(p.grow, P(s, p.id))) };
+    }
+    case 'risk': return s.flags.built ? { avail: true, cs: 0, cl: 0 } : no;
+    case 'dive': return s.sub && !s.dive ? { avail: true, cs: 0, cl: 0 } : no;
+    case 'glow': return s.flags.mid ? { avail: true, cs: K.glowBase * Math.pow(K.glowGrow, s.glow), cl: 0 } : no;
+    case 'batt': return s.flags.mid ? { avail: true, cs: K.battBase * Math.pow(K.battGrow, s.batt), cl: 0 } : no;
+    case 'decode': return s.flags.aby && s.decoded < SIGNALS.length && s.frags >= SIGNALS[s.decoded].cost
+      ? { avail: true, cs: 0, cl: 0 } : no;
+    case 'res': {
+      const r = RESEARCH.find(x => x.id === arg);
+      return r && !R(s, arg) && r.show(s) ? { avail: true, cs: r.cost, cl: 0 } : no;
+    }
+    case 'ping': return s.flags.firstDive && s.cd.ping <= 0 && !s.ping ? { avail: true, cs: 0, cl: 0 } : no;
+    case 'pep': return s.interns >= 1 && s.cd.pep <= 0 ? { avail: true, cs: 0, cl: 0 } : no;
+    case 'open': return s.flags.hatch && !s.opened ? { avail: true, cs: 0, cl: 0 } : no;
+    case 'drain': return s.opened ? { avail: true, cs: 0, cl: 0 } : no;
+  }
+  return no;
+}
+function genVisible(s, g) {
+  switch (g.id) {
+    case 'bucket': return !!s.flags.bucket;
+    case 'trap': return !!s.flags.trap;
+    case 'net': return !!s.flags.built;
+    case 'buoy': return s.record >= 60;
+    case 'drone': return !!s.flags.twi;
+    case 'vent': return !!s.flags.mid;
+    case 'crawler': return !!s.flags.aby;
+  }
+}
+function can(s, a) {
+  const i = info(s, a);
+  return i.avail && s.samples >= i.cs && s.lessons >= i.cl;
+}
+function pay(s, i, cat) {
+  s.samples -= i.cs; s.lessons -= i.cl;
+  if (i.cs) s.spent[cat] = (s.spent[cat] || 0) + i.cs;
+}
+function act(s, a) {
+  if (!can(s, a)) return false;
+  const i = info(s, a), [kind, arg] = a.split(':');
+  switch (kind) {
+    case 'scoop': { const n = scoopSize(s); s.samples += n; s.total += n; break; }
+    case 'gen': pay(s, i, 'Collectors'); s.gens[arg] = G(s, arg) + 1; break;
+    case 'build': pay(s, i, 'Submarines'); s.sub = true; flag(s, 'built', 'built'); break;
+    case 'hull': pay(s, i, 'Hull'); s.hull++; break;
+    case 'cargo': pay(s, i, 'Cargo racks'); s.cargo++; break;
+    case 'tier': pay(s, i, 'Submarines'); s.tier++; say(s, 'tier'); break;
+    case 'intern': pay(s, i, 'Interns'); s.interns++; if (s.interns === 1) say(s, 'hired'); break;
+    case 'perm': pay(s, i, ''); s.perm[arg] = P(s, arg) + 1; break;
+    case 'risk': s.risk = Math.max(0, Math.min(2, +arg || 0)); break;
+    case 'dive': startDive(s); break;
+    case 'glow': pay(s, i, 'Light'); s.glow++; break;
+    case 'batt': pay(s, i, 'Light'); s.batt++; break;
+    case 'decode': s.frags -= SIGNALS[s.decoded].cost; s.decoded++; say(s, 'Decoded: "' + SIGNALS[s.decoded - 1].text + '"'); break;
+    case 'res': pay(s, i, 'Research'); s.res.push(arg); break;
+    case 'ping': s.ping = true; s.cd.ping = K.pingCd; break;
+    case 'pep': s.pep = K.pepTime; s.cd.pep = K.pepCd; break;
+    case 'open': s.opened = true; break;
+    case 'drain': return 'drain';
+  }
+  unlocks(s);
+  return true;
+}
+function drain(s) {
+  const n = newState(s.tank + 1, s);
+  if (s.tank >= 2) n.trueEnd = true;
+  say(n, 'tank2', { n: n.tank });
+  return n;
+}
+
+function startDive(s) {
+  const pl = plan(s, s.risk);
+  if (pl.target > 1000) s.power = Math.max(0, s.power - (pl.target - 1000) / 50 * lampUse(s));
+  const doomed = Math.random() < pl.p;
+  // a doomed sub implodes on the way down, somewhere in the last stretch
+  const time = doomed ? pl.time * (0.3 + 0.2 * Math.random()) : pl.time;
+  s.dive = { ping: s.ping, p: pl.p, target: pl.target, full: pl.time, dur: time, left: time, doomed, dark: pl.dark, risk: s.risk };
+}
+function resolveDive(s) {
+  const d = s.dive;
+  s.dive = null; s.dives++;
+  const haul = payout(s, d.target) * (d.ping ? 3 : 1);
+  const out = { depth: d.target, boom: d.doomed, haul: 0, lessons: 0, spec: null, frags: 0, record: false };
+  if (d.doomed) {
+    s.sub = false; s.subsLost++;
+    out.lessons = Math.ceil(Math.pow(d.target / 20, 0.7) * (R(s, 'notes1') ? 1.5 : 1) * (R(s, 'notes2') ? 1.5 : 1));
+    s.lessons += out.lessons;
+    out.haul = haul * 0.15 * P(s, 'blackbox');
+    if (flag(s, 'firstBoom', 'firstBoom')) flag(s, 'lessons', 'lessons');
+  } else {
+    out.haul = haul;
+    if (d.target > s.record) { s.record = d.target; out.record = true; }
+    flag(s, 'firstDive', 'firstDive');
+    if (d.risk === 2) flag(s, 'reckless');
+    if (s.flags.twi && Math.random() < (R(s, 'specnet') ? 0.8 : 0.4)) {
+      const c = [];
+      SPECIMENS.forEach((sp, i) => { if (sp.d <= d.target && !s.spec.includes(i)) c.push(i); });
+      if (c.length) {
+        out.spec = c[Math.floor(Math.random() * c.length)]; s.spec.push(out.spec);
+        say(s, 'Catalogued: ' + SPECIMENS[out.spec].name + '. ' + SPECIMENS[out.spec].desc);
+      }
+    }
+    if (s.flags.aby && d.target >= 4000) { out.frags = (1 + Math.floor((d.target - 4000) / 2000)) * s.tank * (R(s, 'antenna') ? 2 : 1); s.frags += out.frags; }
+    if (d.dark) flag(s, 'darkNote', 'dark');
+  }
+  s.samples += out.haul; s.total += out.haul;
+  s.last = out;
+  unlocks(s);
+}
+function unlocks(s) {
+  if (s.total >= 10) flag(s, 'bucket', 'bucket');
+  if (G(s, 'bucket') >= 3) flag(s, 'trap', 'trap');
+  if (s.total >= 200) flag(s, 'sun', 'sub');
+  if (s.dives >= 3) flag(s, 'intern', 'intern');
+  if (s.record >= 200) flag(s, 'twi', 'twi');
+  if (s.record >= 1000) flag(s, 'mid', 'mid');
+  if (s.record >= 4000) flag(s, 'aby', 'aby');
+  if (s.record >= 6000) flag(s, 'tre', 'tre');
+  if (s.record >= FLOOR) flag(s, 'floor', 'floor');
+  if (s.flags.floor && s.decoded >= SIGNALS.length) flag(s, 'hatch', 'hatch');
+  for (const a of ACH) if (!s.ach.includes(a.id) && a.t(s)) {
+    s.ach.push(a.id); s.newAch = a.name;
+    say(s, 'Commendation: ' + a.name + '. ' + a.desc + '. I have awarded it to myself.');
+  }
+}
+// what to aim for next
+function goal(s) {
+  if (!s.flags.bucket) return 'Scoop 10 samples';
+  if (!s.flags.sun) return 'Collect 200 samples';
+  if (!s.flags.built) return 'Build the submarine';
+  for (let i = 2; i < ZONES.length; i++) if (s.record < ZONES[i].from) return 'Reach ' + ZONES[i].from.toLocaleString('en-US') + ' m';
+  if (s.record < FLOOR) return 'Reach the floor at 11,000 m';
+  if (s.decoded < SIGNALS.length) return 'Decode all six transmissions';
+  return s.opened ? 'Drain the tank' : 'Open the hatch';
+}
+// a bottle floats by now and then. Catching it does one of three things.
+function bottle(s) {
+  flag(s, 'bottle');
+  const r = Math.random();
+  let msg;
+  if (r < 0.5 || (r >= 0.85 && !s.flags.lessons)) {
+    const n = Math.max(25, genRate(s) * 120 + scoopSize(s) * 20);
+    s.samples += n; s.total += n;
+    msg = 'A bottle. Inside: ' + fmt(n) + ' samples and a note that says "you dropped these".';
+  } else if (r < 0.85) {
+    s.boost = R(s, 'coffee') ? { mult: 5, left: 120 } : { mult: 3, left: 60 };
+    msg = 'A bottle. Inside: very strong coffee. Everything earns ' + s.boost.mult + ' times as much for ' + s.boost.left + ' seconds.';
+  } else {
+    const n = 1 + Math.floor(s.record / 500);
+    s.lessons += n;
+    msg = 'A bottle. Inside: somebody else\'s lab notes. +' + n + ' lessons.';
+  }
+  unlocks(s);
+  return msg;
+}
+function crew(s) { // interns relaunch and rebuild on their own
+  if (s.interns < 1) return;
+  if (R(s, 'card') && s.samples >= 2 * hullCost(s) && can(s, 'hull')) act(s, 'hull');
+  if (s.dive) return;
+  if (!s.sub && can(s, 'build')) act(s, 'build');
+  if (s.sub) startDive(s);
+}
+// Move the world forward by dt seconds. Works for a quarter second or eight hours.
+function advance(s, dt) {
+  let guard = 0;
+  while (dt > 1e-9 && guard++ < 200000) {
+    crew(s);
+    let step = dt;
+    const r = genRate(s);
+    if (s.dive) step = Math.min(step, s.dive.left);
+    if (s.boost) step = Math.min(step, s.boost.left);
+    if (s.pep > 0) step = Math.min(step, s.pep);
+    else if (s.interns > 0 && !s.sub && r > 0) {
+      const need = rebuildCost(s) - s.samples;
+      if (need > 0) step = Math.min(step, need / r + 0.001);
+    }
+    const gain = r * step;
+    s.samples += gain; s.total += gain;
+    s.power = Math.min(powerCap(s), s.power + powerRate(s) * step);
+    if (s.boost) { s.boost.left -= step; if (s.boost.left <= 1e-9) s.boost = null; }
+    if (s.pep > 0) { s.pep -= step; if (s.pep <= 1e-9) s.pep = 0; }
+    s.cd.ping = Math.max(0, s.cd.ping - step); s.cd.pep = Math.max(0, s.cd.pep - step);
+    if (s.dive) { s.dive.left -= step; if (s.dive.left <= 1e-9) resolveDive(s); }
+    dt -= step;
+  }
+  crew(s);
+  unlocks(s);
+}
+
+const FATHOM = { MILESTONES, RESEARCH, SETS, setsDone, genOut, ACH, CHATTER, goal, bottle, FLOOR, ZONES, GENS, SUBS, RISKS, PERMS, SPECIMENS, SIGNALS, LOG, K, newState, fmt, fmtTime, say,
+  mult, genRate, scoopSize, rating, hullCost, rebuildCost, payout, diveTime, powerCap, powerRate, plan, zoneOpen,
+  info, can, act, drain, advance, unlocks, genVisible, diveDepth };
+
+/*ENGINE-END*/
+/* ===== SCREEN: everything below draws the game and handles clicks. ===== */
+(function () {
+  const F = FATHOM, fmt = F.fmt, $ = id => document.getElementById(id);
+  const dep = n => Math.floor(n).toLocaleString('en-US'); // depths read better with commas
+  const KEY = 'fathom-save-v1';
+  const encode = s => btoa(unescape(encodeURIComponent(JSON.stringify(s))));
+  function decode(str) {
+    const o = JSON.parse(decodeURIComponent(escape(atob(str.trim()))));
+    if (!o || o.v !== 1 || typeof o.samples !== 'number') throw new Error('bad save');
+    return Object.assign(F.newState(1), o);
+  }
+  let saveOK = true;
+  function save() { try { localStorage.setItem(KEY, encode(S)); saveOK = true; } catch (e) { saveOK = false; } }
+  function load() { try { const t = localStorage.getItem(KEY); return t ? decode(t) : null; } catch (e) { return null; } }
+
+  let S = load();
+  if (!S) { S = F.newState(1); F.say(S, 'start'); }
+  let toast = '', toastUntil = 0, seenDives = S.dives, resetArmed = 0, lastSave = 0;
+
+  /* ---------- page skeleton ---------- */
+  const ocean = $('ocean'), zoneEl = {}, cardEl = {};
+  for (const z of F.ZONES) {
+    const el = document.createElement('section');
+    el.className = 'zone'; el.id = 'z-' + z.id; el.hidden = true;
+    el.innerHTML = '<header class="zhead"><h2></h2><span class="zdepth"></span></header><div class="panels"></div>';
+    ocean.appendChild(el); zoneEl[z.id] = el;
+  }
+  const unch = document.createElement('section');
+  unch.id = 'uncharted'; unch.hidden = true; unch.innerHTML = '<p></p>'; ocean.appendChild(unch);
+  let lastOpen = '';
+  const BOTTOM = { sun: '#4da0ab', twi: '#0e2f52', mid: '#04091a', aby: '#020510' };
+  function card(zone, key, html) {
+    let el = cardEl[key];
+    if (!el) {
+      el = cardEl[key] = document.createElement('div');
+      el.className = 'card c-' + key; zoneEl[zone].querySelector('.panels').appendChild(el);
+    }
+    if (el._h !== html) { el.innerHTML = html; el._h = html; el.hidden = !html; }
+  }
+  const BULK = { gen: 1, hull: 1, cargo: 1, glow: 1, batt: 1 };
+  function bulkOf(a) { // how many would the x10 or Max setting buy, and for how much
+    const mode = S.bulk || 1;
+    if (mode === 1 || !BULK[a.split(':')[0]]) return null;
+    const c = Object.assign({}, S, { gens: Object.assign({}, S.gens), spent: {}, flags: Object.assign({}, S.flags), log: [], ach: S.ach.slice() });
+    const n = mode === 'max' ? 250 : mode;
+    let count = 0, cost = 0;
+    while (count < n && F.can(c, a)) { cost += F.info(c, a).cs; F.act(c, a); count++; }
+    return { count, cost };
+  }
+  function btn(a, title, detail) {
+    const i = F.info(S, a);
+    if (!i.avail) return '';
+    const bk = bulkOf(a);
+    const cost = bk && bk.count > 1 ? '&times;' + bk.count + ' for ' + fmt(bk.cost) + ' samples'
+      : [i.cs ? fmt(i.cs) + ' samples' : '', i.cl ? i.cl + ' lessons' : ''].filter(Boolean).join(' + ');
+    return '<button class="buy" data-a="' + a + '"><b>' + title + '</b><span>' + (detail || '') + '</span><em>' + cost + '</em></button>';
+  }
+  function gensCard(zone) {
+    let h = '';
+    for (const g of F.GENS) if (g.zone === zone) {
+      const n = S.gens[g.id] || 0, each = (n ? F.genOut(S, g) / n : g.rate) * F.mult(S) * (1 + 0.1 * S.interns), nextM = F.MILESTONES.find(m => m > n);
+      h += btn('gen:' + g.id, g.name + (n ? ' <i>&times;' + n + '</i>' : ''), '+' + fmt(each) + '/s each. ' + (n && nextM ? 'Doubles at ' + nextM + ' owned.' : g.desc));
+    }
+    return h ? '<h3>Collectors</h3>' + h : '';
+  }
+  const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  function garble(text, frac) {
+    let o = '';
+    for (let i = 0; i < text.length; i++) o += text[i] === ' ' ? ' ' : ((i * 7 + 3) % 10 < frac * 10 ? text[i] : '▒');
+    return o;
+  }
+
+  let booted = false, bookOpen = false, bookTab = 'log', seenCount = S.spec.length + S.ach.length;
+  /* ---------- cards ---------- */
+  function draw() {
+    const tank = S.tank;
+    for (const z of F.ZONES) {
+      const el = zoneEl[z.id], open = F.zoneOpen(S, z.id);
+      if (open && el.hidden) { el.hidden = false; if (booted) el.classList.add('reveal'); }
+      if (!open) el.hidden = true;
+      const name = tank > 1 ? z.alt : z.name;
+      const h2 = el.querySelector('h2'); if (h2.textContent !== name) h2.textContent = name;
+      const zlabel = z.id === 'shore' ? (tank > 1 ? 'Tank ' + tank : 'Sea level') : dep(z.from) + ' to ' + dep(z.to) + ' m';
+      const zd = el.querySelector('.zdepth'); if (zd.textContent !== zlabel) zd.textContent = zlabel;
+    }
+    // below the deepest charted zone there is a strip of unknown water, so the sub on the depth line has somewhere to go
+    let last = null;
+    for (const z of F.ZONES) if (z.id !== 'shore' && F.zoneOpen(S, z.id)) last = z;
+    lastOpen = last ? last.id : '';
+    const showUn = !!S.flags.built && last && last.id !== 'tre';
+    if (unch.hidden === showUn) unch.hidden = !showUn;
+    if (showUn) {
+      const ut = 'Uncharted water. Bring a sub back from below ' + dep(last.to) + ' m to chart it.';
+      if (unch._t !== ut) { unch._t = ut; unch.firstChild.textContent = ut; unch.style.background = 'linear-gradient(' + BOTTOM[last.id] + ', #000)'; }
+    }
+    // Shore
+    card('shore', 'scoop', '<button id="scoop" data-a="scoop">Scoop</button><p class="note" data-live="scoopnote"></p>');
+    card('shore', 'gshore', gensCard('shore'));
+    const bench = F.RESEARCH.filter(r => !S.res.includes(r.id) && r.show(S)).sort((a, b) => a.cost - b.cost);
+    card('shore', 'research', bench.length || S.res.length ? '<h3>Research bench <i>' + S.res.length + ' of ' + F.RESEARCH.length + ' done</i></h3>'
+      + (bench.length ? bench.slice(0, 4).map(r => btn('res:' + r.id, esc(r.name), esc(r.desc))).join('') + (bench.length > 4 ? '<p class="note">' + (bench.length - 4) + ' more waiting behind these.</p>' : '')
+        : '<p class="note">Nothing on the bench right now. New ideas turn up as you go deeper and own more collectors.</p>') : '');
+    card('shore', 'log', S.log.length > 1 ? '<h3>Logbook</h3><ol class="log">' + S.log.slice(-8).reverse().map(l => '<li>' + esc(l) + '</li>').join('') + '</ol><p class="note">The whole log is in the notebook.</p>' : '');
+    if (bookOpen) drawBook();
+    // Sunlight
+    if (S.flags.sun) {
+      const sub = F.SUBS[S.tier - 1], next = F.SUBS[S.tier];
+      let h = '<h3>Submarine</h3>';
+      if (S.flags.built) {
+        h += '<p><b>' + esc(sub.name) + '</b><br>Rated to <span class="num">' + fmt(F.rating(S)) + ' m</span> &middot; hull level ' + S.hull + ' of ' + sub.cap + '</p><p class="status" data-live="substatus"></p>';
+      } else h += '<p>The napkin sketch is ready. All it needs is building.</p>';
+      h += btn('build', S.flags.built ? 'Rebuild the submarine' : 'Build the submarine', S.flags.built ? 'Same design. New sticker.' : 'One window, one hatch, some optimism');
+      h += btn('hull', 'Reinforce the hull', 'Rated 10% deeper');
+      h += btn('tier', next ? 'New design: ' + esc(next.name) : '', 'Raises the hull limit. Paid for partly in lessons.');
+      if (S.flags.built && S.hull >= sub.cap && !next) h += '<p class="note">This hull is as strong as hulls get.</p>';
+      else if (S.flags.built && S.hull >= sub.cap) h += '<p class="note">This design has reached its limit. Time for a new one.' + (S.lessons < next.lessons ? ' You have ' + S.lessons + ' of the ' + next.lessons + ' lessons it needs. Lessons only come from implosions, so set the dial to Bold or Reckless and lose a few subs.' : '') + '</p>';
+      h += btn('cargo', 'Cargo racks' + (S.cargo ? ' <i>&times;' + S.cargo + '</i>' : ''), '+30% samples from every dive');
+      if (S.flags.firstDive) h += '<p class="note">Sonar ping, in the top bar, triples the haul of the next dive. It recharges in 5 minutes.</p>';
+      card('sun', 'sub', h);
+      let c = '';
+      if (S.flags.intern) {
+        c = '<h3>Crew</h3>' + btn('intern', 'Hire an intern' + (S.interns ? ' <i>&times;' + S.interns + '</i>' : ''),
+          S.interns ? '+10% from all collectors' : 'Launches dives and rebuilds subs for you, even while you are away');
+        if (S.interns >= F.K.internMax) c += '<p class="note">' + S.interns + ' interns. The break room is full.</p>';
+        if (S.interns) c += '<p class="note">Pep talk, in the top bar, makes the collectors work 5 times as hard for 30 seconds. It recharges in 10 minutes.</p>';
+      }
+      card('sun', 'crew', c);
+      let l = '';
+      if (S.flags.lessons) {
+        l = '<h3>Lessons <i data-live="lessons"></i></h3><p class="note">Earned every time a sub implodes. What they buy is permanent.</p>';
+        for (const p of F.PERMS) {
+          const n = S.perm[p.id] || 0;
+          l += btn('perm:' + p.id, p.name + (n ? ' <i>' + (p.max > 99 ? '&times;' + n : n + '/' + p.max) + '</i>' : ''), p.desc.replace('{n}', n + 1));
+        }
+      }
+      card('sun', 'lessons', l);
+      card('sun', 'gsun', gensCard('sun'));
+    }
+    // Twilight
+    if (S.flags.twi) {
+      card('twi', 'catalog', '<h3>Catalog <i>' + S.spec.length + ' of ' + F.SPECIMENS.length + '</i></h3><p class="note">Dives that come back sometimes bring a new specimen. Each adds 3% to everything, and each finished page adds half as much again. '
+        + F.setsDone(S) + ' of ' + F.SETS.length + ' pages finished.</p><div class="iconrow">' + S.spec.slice().sort((a, b) => a - b).map(i => icon(i, 1)).join('') + '</div><button class="buy" data-a="ui:book:catalog"><b>Open the catalog</b><span>It lives in the notebook</span><em></em></button>');
+      card('twi', 'gtwi', gensCard('twi'));
+    }
+    // Midnight
+    if (S.flags.mid) {
+      card('mid', 'light', '<h3>Light</h3><p class="note">Below 1,000 m the sub burns 1 power for every 50 m. Glowing specimens make a little. Glow tanks make more.</p>'
+        + '<div class="bar"><i data-bar="power"></i></div><p class="status" data-live="power"></p>'
+        + btn('glow', 'Glow tank' + (S.glow ? ' <i>&times;' + S.glow + '</i>' : ''), '+' + F.K.glowRate + ' power per second')
+        + btn('batt', 'Battery' + (S.batt ? ' <i>&times;' + S.batt + '</i>' : ''), '+' + F.K.battCap + ' power stored'));
+      card('mid', 'gmid', gensCard('mid'));
+    }
+    // Abyss
+    if (S.flags.aby) {
+      let h = '<h3>Signals</h3><p class="note">Dives below 4,000 m bring back fragments of something on the radio.</p><p class="status">Fragments: <span class="num">' + S.frags + '</span></p><ol class="signals">';
+      for (let i = 0; i < S.decoded; i++) h += '<li>' + esc(F.SIGNALS[i].text) + '</li>';
+      const nx = F.SIGNALS[S.decoded];
+      const ready = nx && F.can(S, 'decode');
+      if (nx && !ready) h += '<li class="garbled">' + esc(garble(nx.text, Math.min(0.5, S.frags / nx.cost * 0.5))) + '</li>';
+      h += '</ol>';
+      if (ready) h += '<div class="tuner"><p class="note">Enough fragments for transmission ' + (S.decoded + 1) + '. Slide to tune the radio, then hold it where the words come through.</p>'
+        + '<p class="status" id="tunetext"></p><input type="range" id="tune" min="0" max="100" value="50" aria-label="Tune the radio"><div class="bar"><i id="tunelock"></i></div></div>';
+      else if (nx) h += '<p class="note">Transmission ' + (S.decoded + 1) + ' needs ' + nx.cost + ' fragments.</p>';
+      else h += '<p class="note">All six decoded.</p>';
+      card('aby', 'signals', h);
+      card('aby', 'gaby', gensCard('aby'));
+    }
+    // Trench
+    if (S.flags.tre) {
+      let h = '<h3>The floor</h3>';
+      if (S.opened) {
+        const lines = endingLines();
+        h += lines.map(t => '<p class="ending">' + esc(t) + '</p>').join('') + btn('drain', 'Drain the tank', 'Start again one size up. Lessons, commendations and what they bought stay with you. Everything earns ' + F.K.tankMult + ' times more.');
+      } else if (S.flags.hatch) h += '<p>The hatch is unlocked.</p>' + btn('open', 'Open the hatch', 'Hatches do not occur in nature');
+      else if (S.flags.floor) h += '<p>There is a hatch in the floor. It is locked. ' + S.decoded + ' of ' + F.SIGNALS.length + ' transmissions decoded.</p>';
+      else h += '<p>Something is down there. The record stands at <span class="num">' + dep((S.record)) + '</span> of 11,000 m.</p>';
+      card('tre', 'hatch', h);
+    }
+  }
+  /* ---------- the notebook: everything to read, kept off the main page ---------- */
+  const TABS = [['log', 'Log'], ['catalog', 'Catalog'], ['ach', 'Commendations'], ['research', 'Research'], ['costs', 'Costs']];
+  function drawBook() {
+    let h = '';
+    if (bookTab === 'log') h = '<ol class="log">' + S.log.slice().reverse().map(l => '<li>' + esc(l) + '</li>').join('') + '</ol>';
+    if (bookTab === 'catalog') {
+      h = '<p class="note">Found on dives that come back. Each specimen adds 3% to everything. Finish a page for half as much again.</p>';
+      if (!S.flags.twi) h += '<p class="note">The catalog opens at 200 m.</p>';
+      else for (const st of F.SETS) {
+        let found = 0, li = '';
+        for (let i = st.from; i <= st.to; i++) {
+          const sp = F.SPECIMENS[i];
+          if (S.spec.includes(i)) { found++; li += '<li class="pic' + (sp.glow ? ' glow' : '') + '">' + icon(i) + '<div><b>' + esc(sp.name) + '</b> <span>' + esc(sp.desc) + '</span></div></li>'; }
+          else li += '<li class="unknown">Not found yet. Lives below ' + dep(sp.d) + ' m.</li>';
+        }
+        const n = st.to - st.from + 1;
+        h += '<h4>' + st.name + ' <i>' + found + ' of ' + n + (found === n ? ', finished' : '') + '</i></h4><ul class="spec">' + li + '</ul>';
+      }
+    }
+    if (bookTab === 'ach') {
+      h = '<p class="note">' + S.ach.length + ' of ' + F.ACH.length + '. Each one adds 1% to everything. They stay when the tank drains.</p><ul class="spec">';
+      for (const a of F.ACH) h += S.ach.includes(a.id) ? '<li><b>' + esc(a.name) + '</b> <span>' + esc(a.desc) + '</span></li>' : '<li class="unknown">' + esc(a.desc) + '</li>';
+      h += '</ul>';
+    }
+    if (bookTab === 'research') {
+      h = '<p class="note">' + S.res.length + ' of ' + F.RESEARCH.length + ' projects finished. Research starts over when the tank drains.</p><ul class="spec">';
+      for (const r of F.RESEARCH) if (S.res.includes(r.id)) h += '<li><b>' + esc(r.name) + '</b> <span>' + esc(r.desc) + '</span></li>';
+      h += '</ul>';
+    }
+    if (bookTab === 'costs') {
+      let rows = '';
+      for (const k in S.spent) if (k) rows += '<tr><td>' + k + '</td><td>' + fmt(S.spent[k]) + '</td></tr>';
+      rows += '<tr><td>Samples collected, ever</td><td>' + fmt(S.total) + '</td></tr><tr><td>Submarines lost</td><td>' + S.subsLost + '</td></tr><tr><td>Dives</td><td>' + S.dives + '</td></tr>'
+        + '<tr><td>Tank</td><td>' + S.tank + '</td></tr><tr><td>Expedition day</td><td>' + (1 + Math.floor((Date.now() - S.born) / 864e5)) + '</td></tr>';
+      h = '<p class="note">What everything cost.</p><table class="ledger">' + rows + '</table>';
+    }
+    const body = $('bookbody'); if (body._h !== h) { body.innerHTML = h; body._h = h; }
+    const tabs = TABS.map(x => '<button data-a="ui:book:' + x[0] + '"' + (x[0] === bookTab ? ' class="on"' : '') + '>' + x[1] + '</button>').join('');
+    const tb = $('booktabs'); if (tb._h !== tabs) { tb.innerHTML = tabs; tb._h = tabs; }
+  }
+  function endingLines() {
+    return S.tank === 1 ? [
+          'The hatch swings up. There is no more ocean behind it.',
+          'There is a ceiling. Strip lights. The rim of a very large coffee mug.',
+          'The whole sea, every metre of it, is sitting on a workbench. Someone has stuck a label on the glass. You can read it backwards from in here: TANK 1.',
+          'The transmissions were never from the deep. They were from outside.',
+          'There is a drain under the hatch. Of course there is.',
+        ] : [
+          'You know the way now. Up through the hatch, over the rim, onto the bench.',
+          'A sea cow the size of a weather system looks up from a clipboard. Lab coat. Round glasses. A flask bubbling somewhere far overhead.',
+          '"Oh, good," it says. "It worked. Most of them just implode."',
+          'It writes something down. You have seen that notebook. Yours has the same title.',
+          'Behind it, a very long way off, there is a wall of glass.',
+          'THE END. Or drain it again. There is always a bigger tank.',
+        ];
+  }
+
+  /* ---------- fast-changing numbers ---------- */
+  function live() {
+    const r = F.genRate(S), d = S.dive, now = Date.now();
+    const v = {
+      samples: fmt(S.samples), rate: (r > 0 ? '+' + fmt(r) + ' per second' : '') + (S.boost ? '  \u00d73 for ' + Math.ceil(S.boost.left) + 's' : ''),
+      goal: 'Next: ' + F.goal(S),
+      ping: S.ping ? 'Ping armed' : S.cd.ping > 0 ? 'Ping ' + F.fmtTime(S.cd.ping) : 'Sonar ping',
+      pep: S.pep > 0 ? 'Pep talk ' + Math.ceil(S.pep) + 's' : S.cd.pep > 0 ? 'Pep ' + F.fmtTime(S.cd.pep) : 'Pep talk',
+      lessons: String(S.lessons), record: dep((S.record)) + ' m',
+      scoopnote: 'One sample is one jar of seawater. ' + (S.flags.bucket ? '+' + fmt(F.scoopSize(S)) + ' per scoop. ' : '') + 'Hold the button to keep scooping.',
+      lastlog: S.log[S.log.length - 1] || '',
+      divelabel: d ? (d.dur - d.left > d.full / 2 ? '\u2191 ' : '\u2193 ') + dep((F.diveDepth(d))) + ' m' : S.sub ? 'Dive' : 'No sub',
+      power: dep((S.power)) + ' of ' + F.powerCap(S) + ' power, +' + F.powerRate(S).toFixed(3) + ' per second',
+    };
+    if (d) v.substatus = (d.dur - d.left > d.full / 2 ? 'On the way back up. ' : 'On the way down. ') + 'Currently at ' + dep((F.diveDepth(d))) + ' m.';
+    else if (S.sub) v.substatus = 'At the surface, ready.';
+    else v.substatus = 'In pieces.' + (S.interns ? ' The interns will rebuild it when there are enough samples.' : '');
+    if (now < toastUntil) v.plan = toast;
+    else if (d && d.dur - d.left > d.full / 2) v.plan = 'Coming back up from ' + dep((d.target)) + ' m with the samples.';
+    else if (d) v.plan = 'Heading down to ' + dep((d.target)) + ' m.' + (d.p ? ' ' + Math.round(d.p * 100) + '% chance it implodes on the way.' : ' No risk on this one.') + (d.dark ? ' The lamps will not last the whole way.' : '');
+    else if (S.sub) {
+      const p = F.plan(S, S.risk);
+      v.plan = F.RISKS[S.risk].name + ': down to ' + dep((p.target)) + ' m in ' + F.fmtTime(p.time) + ' for about ' + fmt(p.haul) + ' samples, '
+        + (p.p ? Math.round(p.p * 100) + '% chance of implosion.' : 'no risk.') + (p.dark ? ' Not enough lamp power to go deeper.' : '');
+    } else v.plan = S.flags.built ? 'The sub is in pieces. Rebuild it in the Sunlight Zone.' : '';
+    document.querySelectorAll('[data-live]').forEach(el => { const t = v[el.dataset.live] || ''; if (el.textContent !== t) el.textContent = t; });
+    document.querySelectorAll('[data-bar="power"]').forEach(el => { el.style.width = Math.min(100, 100 * S.power / F.powerCap(S)) + '%'; });
+    document.querySelectorAll('button[data-a]').forEach(b => {
+      const a = b.dataset.a;
+      if (a.startsWith('ui:bulk:')) { b.classList.toggle('on', a.slice(8) === String(S.bulk || 1)); return; }
+      if (a.startsWith('ui:')) return;
+      if (a.startsWith('risk:')) { b.classList.toggle('on', +a.slice(5) === S.risk); return; }
+      const off = !F.can(S, a); if (b.disabled !== off) b.disabled = off;
+    });
+    $('st-lessons').hidden = !S.flags.lessons; $('st-record').hidden = !S.flags.firstDive;
+    $('diverow').hidden = $('planline').hidden = !S.flags.built;
+    $('toolrow').hidden = !S.flags.trap;
+    $('pingbtn').hidden = !S.flags.firstDive; $('pepbtn').hidden = S.interns < 1;
+    $('nbdot').hidden = bookOpen || S.spec.length + S.ach.length <= seenCount;
+    document.querySelector('.stat.main .per').classList.toggle('boost', !!S.boost);
+    const open = F.ZONES.filter(z => F.zoneOpen(S, z.id));
+    const ch = open.length > 2 ? open.map(z => '<button data-a="ui:go:' + z.id + '">' + esc((S.tank > 1 ? z.alt : z.name).replace(/^The /, '').replace(/ Zone$/, '')) + '</button>').join('') : '';
+    const chips = $('chips'); if (chips._h !== ch) { chips.innerHTML = ch; chips._h = ch; }
+    $('diveprog').style.width = d ? Math.min(100, 100 * (d.dur - d.left) / d.full) + '%' : '0'; // fills across the whole trip, down and back
+    // the little sub on the depth line
+    const mark = $('submark'), rec = $('recmark'), sun = zoneEl.sun;
+    if (!S.flags.built || sun.hidden) { mark.hidden = rec.hidden = true; }
+    else {
+      mark.hidden = !S.sub; rec.hidden = S.record < 1;
+      mark.style.top = yFor(d ? F.diveDepth(d) : 0) + 'px';
+      rec.style.top = yFor(S.record) + 'px';
+      const rl = dep((S.record)) + ' m'; if (rec.dataset.l !== rl) rec.dataset.l = rl;
+    }
+    const title = document.body.classList.contains('meeting') ? 'Q4 Resource Tracker' : (S.flags.firstDive ? dep((S.record)) + ' m · ' : '') + 'FATHOM';
+    if (document.title !== title) document.title = title;
+    if (document.body.classList.contains('meeting')) meeting(r);
+    $('savenote').textContent = saveOK ? '' : 'This browser is not letting the game save here. Use Export save to keep your progress.';
+  }
+  function yFor(depth) {
+    let y = zoneEl.sun.offsetTop;
+    for (const z of F.ZONES) {
+      if (z.id === 'shore') continue;
+      const el = zoneEl[z.id];
+      if (el.hidden) break;
+      if (depth >= z.to) {
+        y = el.offsetTop + el.offsetHeight;
+        if (!unch.hidden && z.id === lastOpen) y += unch.offsetHeight * Math.min(0.9, (depth - z.to) / (z.to * 0.45));
+        continue;
+      }
+      y = el.offsetTop + el.offsetHeight * Math.max(0, depth - z.from) / (z.to - z.from);
+      break;
+    }
+    return y;
+  }
+  function meeting(r) {
+    const d = S.dive, rows = [
+      ['Inventory (units)', fmt(S.samples)], ['Throughput (units/s)', fmt(r)], ['Learnings logged', S.lessons],
+      ['Depth of analysis (m)', dep((S.record))], ['Active initiative', d ? Math.round(100 * (1 - d.left / d.dur)) + '% complete' : S.sub ? 'Not started' : 'Blocked'],
+      ['Headcount', S.interns], ['Initiatives closed', S.dives], ['Write-offs', S.subsLost],
+    ];
+    const h = rows.map(x => '<tr><td>' + x[0] + '</td><td>' + x[1] + '</td></tr>').join('');
+    const t = $('mtable'); if (t._h !== h) { t.innerHTML = h; t._h = h; }
+  }
+
+  /* ---------- the little picture at the top ---------- */
+  const cv = $('scene');
+  let cx = cv.getContext('2d');
+  const floaters = [], bubbles = [], fish = [];
+  const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let scoopT = -1e9, ghost = null, lastFrame = 0, prevCam = 0, caption = null, lastZone = 0, spawnT = 0, eyeUntil = 0, nextEye = 20000;
+  const STOPS = [[0, [191, 232, 226]], [200, [77, 160, 171]], [1000, [14, 47, 82]], [4000, [4, 9, 26]], [11000, [0, 0, 0]]];
+  // what each catalogued creature looks like when it swims past, in the same order as the SPECIMENS table
+  const SHAPES = ['crab', 'fish', 'blob', 'kelp', 'fish', 'jelly', 'eel', 'squid', 'fish', 'fish', 'snail', 'whale', 'blob', 'fish',
+    'angler', 'eel', 'jelly', 'squid', 'blob', 'jelly', 'ray', 'angler', 'squid', 'blob', 'fish', 'fish', 'blob', 'snail', 'crab', 'gold'];
+  function water(d) {
+    for (let i = 1; i < STOPS.length; i++) if (d <= STOPS[i][0]) {
+      const a = STOPS[i - 1], b = STOPS[i], k = (d - a[0]) / (b[0] - a[0]);
+      return 'rgb(' + a[1].map((v, j) => Math.round(v + (b[1][j] - v) * k)).join(',') + ')';
+    }
+    return '#000';
+  }
+  function nice(x) { const p = Math.pow(10, Math.floor(Math.log10(x))), n = x / p; return (n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10) * p; }
+  function rr(x, y, w, h, r) { cx.beginPath(); cx.moveTo(x + r, y); cx.arcTo(x + w, y, x + w, y + h, r); cx.arcTo(x + w, y + h, x, y + h, r); cx.arcTo(x, y + h, x, y, r); cx.arcTo(x, y, x + w, y, r); cx.closePath(); }
+  function seacow(x, y, dip) { // x, y = where its feet are
+    cx.fillStyle = '#8b979e'; cx.beginPath(); cx.ellipse(x, y - 13, 10, 13, 0, 0, 7); cx.fill();
+    cx.fillStyle = '#fff'; cx.beginPath(); cx.moveTo(x - 9, y - 17); cx.lineTo(x + 9, y - 17); cx.lineTo(x + 11, y - 2); cx.lineTo(x - 11, y - 2); cx.fill();
+    cx.fillStyle = '#8b979e'; cx.fillRect(x - 2, y - 17, 4, 13);
+    cx.beginPath(); cx.arc(x + 1, y - 28, 8, 0, 7); cx.fill();
+    cx.fillStyle = '#a9b4ba'; cx.beginPath(); cx.ellipse(x + 6, y - 25, 6, 4.5, 0, 0, 7); cx.fill();
+    cx.strokeStyle = '#23201a'; cx.lineWidth = 1.2; cx.beginPath(); cx.arc(x - 1, y - 30, 2.6, 0, 7); cx.moveTo(x + 7.6, y - 30); cx.arc(x + 5, y - 30, 2.6, 0, 7); cx.stroke();
+    cx.fillStyle = '#c0392b'; cx.beginPath(); cx.moveTo(x - 3, y - 20); cx.lineTo(x + 5, y - 16); cx.lineTo(x + 5, y - 20); cx.lineTo(x - 3, y - 16); cx.fill();
+    const bx = x + 16 + dip * 14, by = y - 12 + dip * 16;
+    cx.strokeStyle = '#8b979e'; cx.lineWidth = 4; cx.lineCap = 'round'; cx.beginPath(); cx.moveTo(x + 7, y - 14); cx.lineTo(bx, by); cx.stroke();
+    bucket(bx, by, 1);
+  }
+  function bucket(x, y, k) { cx.fillStyle = '#e2622b'; cx.beginPath(); cx.moveTo(x - 5 * k, y); cx.lineTo(x + 5 * k, y); cx.lineTo(x + 3.5 * k, y + 8 * k); cx.lineTo(x - 3.5 * k, y + 8 * k); cx.fill(); }
+  function intern(x, y, t, i) {
+    const b = Math.sin(t / 400 + i * 1.7);
+    cx.fillStyle = '#9fb0b8'; cx.beginPath(); cx.ellipse(x, y - 4 + b, 2.6, 4, 0, 0, 7); cx.fill(); cx.beginPath(); cx.arc(x + 0.5, y - 9 + b, 2.4, 0, 7); cx.fill();
+    cx.fillStyle = '#e2622b'; cx.fillRect(x - 2.6, y - 12.4 + b, 5.2, 1.6);
+  }
+  function drawSub(x, y, lamp, tier) { // four designs, one per submarine
+    const L = [28, 36, 44, 52][tier - 1], H = [14, 16, 16, 18][tier - 1], x0 = x - L / 2;
+    if (lamp) { cx.fillStyle = 'rgba(255,236,160,.16)'; cx.beginPath(); cx.moveTo(x + L / 2 - 2, y); cx.lineTo(x + L / 2 + 76, y - 22); cx.lineTo(x + L / 2 + 76, y + 26); cx.fill(); }
+    cx.fillStyle = tier === 4 ? '#cf4a1a' : '#e2622b';
+    rr(x0, y - H / 2, L, H, tier === 2 ? 4 : H / 2); cx.fill();
+    if (tier === 2) cx.fillRect(x0 - 2, y - H / 2 - 2, L + 4, 3); else { rr(x - 5, y - H / 2 - 6, 10, 8, 2); cx.fill(); }
+    cx.fillRect(x0 - 5, y - 4, 5, 8);
+    if (tier >= 3) { cx.beginPath(); cx.moveTo(x0 + 3, y - H / 2 + 1); cx.lineTo(x0 - 7, y - H / 2 - 6); cx.lineTo(x0 + 10, y - H / 2 + 1); cx.fill(); }
+    if (tier === 4) { cx.fillStyle = '#fff'; cx.fillRect(x0 + 6, y + H / 2 - 5, L - 14, 2); }
+    const n = [1, 2, 2, 3][tier - 1];
+    for (let i = 0; i < n; i++) {
+      const px = x + L / 2 - 8 - i * 9;
+      cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(px, y - 1, 3.4, 0, 7); cx.fill();
+      cx.fillStyle = i ? '#9fd8de' : '#8b979e'; cx.beginPath(); cx.arc(px, y - 1, 2, 0, 7); cx.fill();
+    }
+    if (tier === 1) { cx.strokeStyle = '#fff'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(x0 + 5, y + 1); cx.lineTo(x0 + 10, y + 5); cx.moveTo(x0 + 10, y + 1); cx.lineTo(x0 + 5, y + 5); cx.stroke(); }
+  }
+  function creature(f, x, y, t) {
+    const s = f.s, wv = Math.sin(t / 300 + f.ph);
+    cx.save();
+    if (f.glow) { cx.shadowColor = '#7df9d0'; cx.shadowBlur = 8; }
+    cx.fillStyle = cx.strokeStyle = f.col; cx.lineWidth = 1.5; cx.lineCap = 'round';
+    cx.beginPath();
+    switch (f.k) {
+      case 'jelly': cx.arc(x, y, s, Math.PI, 0); cx.fill(); cx.beginPath();
+        for (let i = -1; i <= 1; i++) { cx.moveTo(x + i * s * 0.5, y); cx.quadraticCurveTo(x + i * s * 0.5 + wv * 2, y + s * 0.8, x + i * s * 0.5, y + s * 1.5); }
+        cx.stroke(); break;
+      case 'crab': cx.ellipse(x, y, s, s * 0.6, 0, 0, 7); cx.fill(); cx.beginPath(); cx.arc(x - s * 1.1, y - s * 0.5 + wv, s * 0.4, 0, 7); cx.arc(x + s * 1.1, y - s * 0.5 - wv, s * 0.4, 0, 7); cx.fill(); break;
+      case 'eel': for (let i = 0; i <= 10; i++) { const px = x + i * s * 0.35, py = y + Math.sin(i * 0.8 + t / 250 + f.ph) * s * 0.3; if (i) cx.lineTo(px, py); else cx.moveTo(px, py); }
+        cx.lineWidth = Math.max(2, s * 0.35); cx.stroke(); break;
+      case 'squid': cx.ellipse(x, y, s, s * 0.45, 0, 0, 7); cx.fill(); cx.beginPath();
+        for (let i = -1; i <= 1; i++) { cx.moveTo(x + s * 0.8, y + i * s * 0.2); cx.quadraticCurveTo(x + s * 1.4, y + i * s * 0.4 + wv * 2, x + s * 2, y + i * s * 0.3); }
+        cx.stroke(); break;
+      case 'blob': cx.ellipse(x, y, s * (1 + wv * 0.08), s * (0.8 - wv * 0.08), 0, 0, 7); cx.fill(); break;
+      case 'kelp': for (let i = 0; i <= 8; i++) { const py = y + s - i * s * 0.35, px = x + Math.sin(i * 0.9 + t / 400) * s * 0.3; if (i) cx.lineTo(px, py); else cx.moveTo(px, py); }
+        cx.lineWidth = 2.5; cx.stroke(); break;
+      case 'snail': cx.arc(x, y, s * 0.7, 0, 7); cx.fill(); cx.beginPath(); cx.ellipse(x - s * 0.2, y + s * 0.6, s, s * 0.25, 0, 0, 7); cx.fill(); break;
+      case 'whale': cx.ellipse(x, y, s * 0.5, s * 1.2, 0, 0, 7); cx.fill(); cx.beginPath(); cx.moveTo(x, y + s * 1.1); cx.lineTo(x - s * 0.6, y + s * 1.7); cx.lineTo(x + s * 0.6, y + s * 1.7); cx.fill(); break;
+      case 'ray': cx.moveTo(x - s, y); cx.lineTo(x, y - s * 0.5); cx.lineTo(x + s, y); cx.lineTo(x, y + s * 0.5); cx.fill(); cx.beginPath(); cx.moveTo(x + s, y); cx.lineTo(x + s * 2, y + wv); cx.stroke(); break;
+      default:
+        cx.ellipse(x, y, s, s * 0.45, 0, 0, 7); cx.moveTo(x + s * 0.8, y); cx.lineTo(x + s * 1.7, y - s * 0.5); cx.lineTo(x + s * 1.7, y + s * 0.5); cx.fill();
+        if (f.k === 'angler') { cx.beginPath(); cx.moveTo(x - s * 0.6, y - s * 0.3); cx.quadraticCurveTo(x - s * 1.2, y - s * 1.2, x - s * 1.5, y - s * 0.5); cx.lineWidth = 1; cx.stroke(); cx.beginPath(); cx.arc(x - s * 1.5, y - s * 0.5, 1.8, 0, 7); cx.fill(); }
+    }
+    cx.restore();
+    if (f.name) { cx.font = '9px ui-monospace,Menlo,Consolas,monospace'; cx.textAlign = 'left'; cx.fillStyle = f.lab; cx.fillText(f.name, x - s, y - s * 1.3 - 4); }
+  }
+  function scene(t) {
+    if (document.body.classList.contains('meeting')) return;
+    const w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+    const r = window.devicePixelRatio || 1;
+    if (cv.width !== Math.round(w * r) || cv.height !== Math.round(h * r)) { cv.width = Math.round(w * r); cv.height = Math.round(h * r); }
+    cx.setTransform(r, 0, 0, r, 0, 0);
+    const dt = Math.min(0.1, Math.max(0, (t - lastFrame) / 1000)); lastFrame = t;
+    const d = S.dive, boom = !d && ghost && t < ghost.until;
+    let depth = 0, target = 30, diving = false;
+    if (d) { depth = F.diveDepth(d); target = d.target; diving = true; }
+    else if (boom) { depth = target = ghost.depth; diving = true; }
+    const scale = diving ? 520 / target : 2, cam = depth * scale;
+    const base = Math.min(52, h * 0.58), subY = base + Math.min(1, cam / 60) * (h / 2 - base), surf = subY - cam;
+    const camV = dt ? (cam - prevCam) / dt : 0; prevCam = cam;
+    const dAt = y => Math.max(0, (y - surf) / scale);
+    const sx = Math.max(170, Math.min(w * 0.6, w - 110));
+    const hr = new Date().getHours(), night = hr >= 20 || hr < 6, dusk = !night && (hr < 8 || hr >= 18);
+    const ink = night ? '245,241,222' : '35,32,26';
+    // sky: follows the real clock
+    cx.fillStyle = night ? '#1e2748' : dusk ? '#f6d3ad' : '#eaf3f5'; cx.fillRect(0, 0, w, h);
+    if (surf > 14) {
+      if (night) { cx.fillStyle = 'rgba(255,255,255,.8)'; for (let i = 0; i < 16; i++) cx.fillRect((i * 97 + 31) % w, (i * 37) % Math.max(8, surf - 12), 1.2, 1.2); }
+      cx.fillStyle = night ? '#f4f1de' : '#f2b441'; cx.beginPath(); cx.arc(w - 34, Math.min(16, surf - 12), 6, 0, 7); cx.fill();
+      if (!S.flags.bucket) { cx.font = '600 20px Georgia,serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(' + ink + ',.85)'; 'FATHOM'.split('').forEach((c, i) => cx.fillText(c, w / 2 + (i - 2.5) * 20, Math.max(22, surf - 16))); }
+    }
+    const top = Math.max(0, surf), g = cx.createLinearGradient(0, top, 0, h);
+    g.addColorStop(0, water(dAt(top))); g.addColorStop(1, water(dAt(h)));
+    cx.fillStyle = g; cx.fillRect(0, top, w, h - top);
+    if (S.tank > 1) { // you know it is a tank now, so you can see the glass
+      cx.fillStyle = 'rgba(255,255,255,.07)';
+      for (const gx of [w * 0.18, w * 0.72]) { cx.beginPath(); cx.moveTo(gx, 0); cx.lineTo(gx + 26, 0); cx.lineTo(gx - 30, h); cx.lineTo(gx - 56, h); cx.fill(); }
+      if (t > nextEye) { eyeUntil = t + 5500; nextEye = t + 30000 + Math.random() * 45000; }
+      if (t < eyeUntil) { // someone is checking on the tank
+        const a = Math.min(1, (eyeUntil - t) / 800, (t - (eyeUntil - 5500)) / 800), ex = w - 30, ey = h / 2;
+        cx.fillStyle = 'rgba(255,255,255,' + a * 0.1 + ')'; cx.strokeStyle = 'rgba(255,255,255,' + a * 0.5 + ')'; cx.lineWidth = 5;
+        cx.beginPath(); cx.arc(ex, ey, 34, 0, 7); cx.fill(); cx.stroke();
+        cx.fillStyle = 'rgba(10,14,20,' + a * 0.65 + ')'; cx.beginPath(); cx.ellipse(ex - 9, ey + (subY - ey) * 0.25, 9, 12, 0, 0, 7); cx.fill();
+      }
+    }
+    if (surf > -4) {
+      cx.strokeStyle = 'rgba(255,255,255,.85)'; cx.lineWidth = 1.5; cx.beginPath();
+      for (let x = 0; x <= w; x += 6) { const y = surf + Math.sin(x / 14 + t / 500) * 1.5; if (x) cx.lineTo(x, y); else cx.moveTo(x, y); }
+      cx.stroke();
+    }
+    if (diving) { // depth marks sliding past
+      const step = nice(target / 6), deep = depth > 150;
+      cx.font = '10px ui-monospace,Menlo,Consolas,monospace'; cx.textAlign = 'right'; cx.lineWidth = 1;
+      cx.fillStyle = cx.strokeStyle = deep ? 'rgba(255,255,255,.5)' : 'rgba(0,40,50,.45)';
+      for (let m = step; m <= target * 1.3; m += step) {
+        const y = surf + m * scale; if (y < -10 || y > h + 10) continue;
+        cx.beginPath(); cx.moveTo(w - 72, y); cx.lineTo(w - 58, y); cx.stroke(); cx.fillText(dep(m) + ' m', w - 8, y + 3);
+      }
+      const fy = surf + F.FLOOR * scale; // the bottom of everything
+      if (fy < h + 8) {
+        cx.fillStyle = '#1b1712'; cx.fillRect(0, fy, w, h - fy + 8);
+        cx.fillStyle = S.flags.hatch ? '#7df9d0' : '#66727b'; rr(sx + 34, fy - 4, 30, 7, 2); cx.fill();
+        cx.strokeStyle = '#1b1712'; cx.lineWidth = 1.5; cx.beginPath(); cx.arc(sx + 49, fy - 0.5, 2.5, 0, 7); cx.stroke();
+      }
+    }
+    if (surf > -120) { // the beach fills up as the lab grows
+      const flat = Math.min(120, w * 0.3), sy = surf - 7;
+      cx.fillStyle = '#e6d3a3'; cx.beginPath(); cx.moveTo(0, sy); cx.lineTo(flat, sy); cx.lineTo(flat + 56, surf + 44); cx.quadraticCurveTo(flat + 70, surf + 84, 0, surf + 112); cx.fill();
+      const jars = S.total >= 1 ? Math.min(10, 1 + Math.floor(Math.log10(S.total))) : 0;
+      for (let i = 0; i < jars; i++) {
+        const jx = 4 + (i % 5) * 6, jy = sy - 8 - Math.floor(i / 5) * 9;
+        cx.fillStyle = 'rgba(77,160,171,.9)'; cx.fillRect(jx, jy + 2, 5, 6); cx.fillStyle = '#23201a'; cx.fillRect(jx, jy, 5, 2);
+      }
+      const gap = Math.max(3, Math.min(6, (flat - 82) / 8));
+      for (let i = 0; i < S.interns; i++) intern(40 + i * gap, sy, t, i);
+      const nb = S.gens.bucket ? Math.min(3, 1 + Math.floor(Math.log10(S.gens.bucket))) : 0;
+      for (let i = 0; i < nb; i++) { const bx = flat + 8 + i * 10; bucket(bx, sy + (bx - flat) * 0.91 - 7, 0.8); }
+      if (S.gens.net) { cx.fillStyle = '#c0392b'; for (let i = 0; i < 6; i++) { const nx = flat + 96 + i * 9; if (nx < sx - 40) { cx.beginPath(); cx.arc(nx, surf + Math.sin(nx / 14 + t / 500) * 1.5, 1.8, 0, 7); cx.fill(); } } }
+      const nbu = S.gens.buoy ? Math.min(3, 1 + Math.floor(Math.log10(S.gens.buoy))) : 0;
+      for (let i = 0; i < nbu; i++) {
+        const ux = w - 70 - i * 26, uy = surf + Math.sin(ux / 14 + t / 500) * 1.5;
+        if (ux < sx + 40) break;
+        cx.fillStyle = '#c0392b'; cx.beginPath(); cx.arc(ux, uy, 4, 0, 7); cx.fill(); cx.fillStyle = '#fff'; cx.fillRect(ux - 4, uy - 1, 8, 2);
+        cx.strokeStyle = 'rgba(' + ink + ',.8)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(ux, uy - 4); cx.lineTo(ux, uy - 12); cx.stroke();
+      }
+      const k = (t - scoopT) / 260, dip = k < 1 ? Math.sin(k * Math.PI) : 0;
+      cx.save(); cx.translate(flat - 24, sy); cx.scale(base / 40, base / 40); seacow(0, 0, dip); cx.restore();
+    }
+    // creatures: the ones in your catalog swim past at the depth they live at
+    for (let i = fish.length - 1; i >= 0; i--) {
+      const f = fish[i]; f.x += f.vx * dt;
+      const y = surf + f.wd * scale;
+      if (!diving || f.x < -60 || y < -24 || y > h + 24 || y < surf + 5) { fish.splice(i, 1); continue; }
+      creature(f, f.x, y, t);
+    }
+    if (d && !still) {
+      spawnT -= dt;
+      if (spawnT <= 0) {
+        spawnT = 0.45;
+        const seen = S.spec.filter(i => { const y = surf + F.SPECIMENS[i].d * scale; return y > 14 && y < h + 16 && !fish.some(f => f.id === i || (f.name && Math.abs(surf + f.wd * scale - y) < 16)); });
+        const named = fish.filter(f => f.name).length;
+        if (seen.length && named < (w < 500 ? 2 : 3)) {
+          const i = seen[Math.floor(Math.random() * seen.length)], sp = F.SPECIMENS[i], deep = sp.d > 150;
+          const left = Math.random() < 0.35 && sx > 260;
+          fish.push({ id: i, wd: sp.d, x: left ? 150 + Math.random() * (sx - 230) : sx + 70 + Math.random() * Math.max(10, w - sx - 200), vx: -(5 + Math.random() * 9), s: SHAPES[i] === 'whale' ? 11 : 6 + Math.random() * 3,
+            k: SHAPES[i] || 'fish', ph: Math.random() * 6, glow: !!sp.glow, name: sp.name,
+            col: sp.glow ? 'rgba(125,249,208,.9)' : SHAPES[i] === 'gold' ? '#ff9a2e' : deep ? 'rgba(215,232,240,.6)' : 'rgba(10,50,60,.5)', lab: deep ? 'rgba(255,255,255,.65)' : 'rgba(10,40,50,.7)' });
+        } else if (fish.length < 4 && Math.random() < 0.4) {
+          const wd = dAt(h + 6), deep = wd > 150;
+          fish.push({ id: -1, wd, x: w * (0.2 + Math.random() * 0.75), vx: -(14 + Math.random() * 22), s: 3 + Math.random() * 3, k: 'fish', ph: 0, glow: wd > 1000 && Math.random() < 0.5,
+            col: deep ? 'rgba(215,232,240,.3)' : 'rgba(10,50,60,.28)' });
+          if (fish[fish.length - 1].glow) fish[fish.length - 1].col = 'rgba(125,249,208,.7)';
+        }
+      }
+    }
+    cx.fillStyle = 'rgba(255,255,255,.6)';
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      const b = bubbles[i]; b.y -= (26 + camV) * dt; b.x += Math.sin(t / 200 + i) * 6 * dt;
+      if (b.y < Math.max(-4, surf) || b.y > h + 4) { bubbles.splice(i, 1); continue; }
+      cx.beginPath(); cx.arc(b.x, b.y, b.r, 0, 7); cx.fill();
+    }
+    const subLen = [28, 36, 44, 52][S.tier - 1];
+    if (d && !still) { // every sub in the fleet leaves bubbles
+      const fleet = [[0, -2]];
+      if (S.res.includes('sub2')) fleet.push([-56, 10]);
+      if (S.res.includes('sub3')) fleet.push([-100, -11]);
+      for (const f of fleet) if (Math.random() < dt * 7) bubbles.push({ x: sx + f[0] - subLen / 2 - 6, y: subY + f[1], r: 1 + Math.random() * 1.8 });
+    }
+    if (boom) { // the sub has become several smaller subs
+      const k = 1 - (ghost.until - t) / 900;
+      cx.strokeStyle = 'rgba(226,98,43,' + (1 - k) + ')'; cx.lineWidth = 2; cx.beginPath(); cx.arc(sx, subY, 6 + k * 34, 0, 7); cx.stroke();
+      cx.fillStyle = 'rgba(226,98,43,' + (1 - k) + ')';
+      for (let i = 0; i < 9; i++) { const a = i * 0.7; cx.fillRect(sx + Math.cos(a) * k * 34 - 2, subY + Math.sin(a) * k * 24 + k * k * 14 - 2, 4, 4); }
+    } else if (S.sub) {
+      const bob = d ? 0 : Math.sin(t / 600) * 1.5 - 2;
+      if (S.res.includes('sub3')) drawSub(sx - 100, subY + bob - 9, depth > 200, S.tier);
+      if (S.res.includes('sub2')) drawSub(sx - 56, subY + bob + 12, depth > 200, S.tier);
+      drawSub(sx, subY + bob, depth > 200, S.tier);
+    }
+    // the name of each zone as the sub crosses into it
+    const zi = [200, 1000, 4000, 6000].filter(x => depth >= x).length;
+    if (d && zi > lastZone) { const z = F.ZONES[zi + 1]; caption = { text: S.tank > 1 ? z.alt : z.name, from: t }; }
+    lastZone = d ? zi : 0;
+    if (caption) {
+      const age = t - caption.from, a = Math.min(1, age / 400, (2800 - age) / 700);
+      if (a <= 0) caption = null;
+      else { cx.font = 'italic 15px Georgia,serif'; cx.textAlign = 'center'; cx.fillStyle = 'rgba(' + (depth > 150 ? '255,255,255' : '10,40,50') + ',' + a + ')'; cx.fillText(caption.text, w / 2, 18); }
+    }
+    cx.font = '11px ui-monospace,Menlo,Consolas,monospace'; cx.textAlign = 'left';
+    for (let i = floaters.length - 1; i >= 0; i--) {
+      const f = floaters[i], k = (t - f.t) / 1100;
+      if (k >= 1) { floaters.splice(i, 1); continue; }
+      const flat = Math.min(120, w * 0.3), fx = f.sub ? sx - 10 : flat + f.j, fy = (f.sub ? base - 14 : surf - 14) - k * 22;
+      cx.fillStyle = 'rgba(' + ink + ',' + (1 - k) + ')'; cx.fillText(f.text, fx, fy);
+    }
+  }
+  // small pictures of catalogued creatures, drawn with the same code as the scene
+  const icon = (i, small) => '<canvas class="icon' + (small ? ' sm' : '') + '" data-i="' + i + '" width="88" height="64" title="' + esc(F.SPECIMENS[i].name) + '"></canvas>';
+  let iconT = 0;
+  function drawIcons(t) {
+    if (t - iconT < 90) return; iconT = t;
+    const main = cx;
+    document.querySelectorAll('canvas.icon').forEach(c => {
+      if (!c.offsetParent) return;
+      const i = +c.dataset.i, sp = F.SPECIMENS[i], k = SHAPES[i] || 'fish', deep = sp.d > 150;
+      cx = c.getContext('2d'); cx.setTransform(2, 0, 0, 2, 0, 0);
+      cx.fillStyle = water(sp.d); cx.fillRect(0, 0, 44, 32);
+      creature({ k, s: k === 'whale' ? 6.5 : k === 'kelp' ? 8 : 7, ph: i, glow: !!sp.glow,
+        col: sp.glow ? 'rgba(125,249,208,.95)' : k === 'gold' ? '#ff9a2e' : deep ? 'rgba(225,238,244,.85)' : 'rgba(10,50,60,.7)' },
+        k === 'eel' ? 10 : k === 'squid' || k === 'ray' ? 16 : k === 'jelly' || k === 'crab' || k === 'blob' || k === 'whale' || k === 'kelp' || k === 'snail' ? 22 : 18, k === 'whale' ? 12 : k === 'jelly' ? 13 : 16, still ? 0 : t);
+    });
+    cx = main;
+  }
+  function frame(t) { try { scene(t); drawIcons(t); } catch (e) { /* one bad frame must never freeze the picture */ } requestAnimationFrame(frame); }
+
+  /* ---------- time ---------- */
+  function snap() { return { samples: S.samples, dives: S.dives, lost: S.subsLost, spec: S.spec.length, lessons: S.lessons, record: S.record }; }
+  function away(sec, before, capped) {
+    const li = ['+' + fmt(Math.max(0, S.samples - before.samples)) + ' samples'];
+    if (S.dives > before.dives) li.push((S.dives - before.dives) + ' dives run by the interns');
+    if (S.subsLost > before.lost) li.push((S.subsLost - before.lost) + ' subs lost, +' + (S.lessons - before.lessons) + ' lessons');
+    if (S.spec.length > before.spec) li.push((S.spec.length - before.spec) + ' new specimens');
+    if (S.record > before.record) li.push('New depth record: ' + dep((S.record)) + ' m');
+    modal('While you were away', '<p>' + F.fmtTime(sec) + ' passed.</p><ul>' + li.map(x => '<li>' + x + '</li>').join('') + '</ul>'
+      + (capped ? '<p class="note">The lab only runs unattended for 8 hours. The interns have a union.</p>' : ''));
+  }
+  function modal(title, body) {
+    $('mtitle').textContent = title; $('mbody').innerHTML = body; $('modal').hidden = false;
+  }
+  function tick() {
+    const now = Date.now();
+    let dt = (now - S.t) / 1000; S.t = now;
+    if (dt < 0) dt = 0;
+    const before = dt > 120 ? snap() : null, capped = dt > F.K.offlineCap;
+    F.advance(S, Math.min(dt, F.K.offlineCap));
+    if (before) { away(dt, before, capped); seenDives = S.dives; }
+    if (S.dives !== seenDives) { seenDives = S.dives; showResult(); }
+    if (S.newAch) { toast = 'Commendation earned: ' + S.newAch + '.'; toastUntil = now + 6000; S.newAch = null; }
+    const awake = !document.hidden && !document.body.classList.contains('meeting');
+    if (awake && S.flags.built && now > nextBottle && $('drift').hidden) spawnBottle();
+    if (awake && S.interns > 0 && now > nextChatter) { F.say(S, F.CHATTER[Math.floor(Math.random() * F.CHATTER.length)]); nextChatter = now + 240000 + Math.random() * 360000; }
+    tuneUpdate(0.25);
+    draw(); live();
+    if (now - lastSave > 15000) { lastSave = now; save(); }
+  }
+  /* ---------- bottles and the radio ---------- */
+  let nextBottle = Date.now() + 75000, nextChatter = Date.now() + 200000, lockIn = 0, shimmer = 0;
+  function spawnBottle() {
+    const b = $('drift');
+    b.hidden = false; b.style.top = (Math.min(52, cv.clientHeight * 0.58) - 30) + 'px';
+    b.classList.remove('go'); void b.offsetWidth;
+    if (still) { b.style.left = '60%'; setTimeout(() => { b.hidden = true; }, 20000); } else b.classList.add('go');
+    nextBottle = Date.now() + (90000 + Math.random() * 150000) / (S.res.includes('bait') ? 2 : 1);
+  }
+  $('drift').addEventListener('animationend', e => { if (e.animationName === 'drift') $('drift').hidden = true; });
+  function tuneUpdate(dt) {
+    const el = $('tune'), nx = F.SIGNALS[S.decoded];
+    if (!el || !nx) { lockIn = 0; return; }
+    const target = [62, 18, 81, 37, 9, 55][(S.decoded + S.tank) % 6], str = Math.max(0, 1 - Math.abs(el.value - target) / 24);
+    shimmer++;
+    let o = '';
+    for (let i = 0; i < nx.text.length; i++) { const c = nx.text[i]; o += c === ' ' ? ' ' : (str > 0.9 || (i * 7 + 3) % 10 < str * 8.5 ? c : '\u2591\u2592\u2593'[(i + shimmer) % 3]); }
+    $('tunetext').textContent = o;
+    if (dt) lockIn = Math.max(0, Math.min(1, lockIn + (str > 0.9 ? dt / 1.5 : -dt)));
+    $('tunelock').style.width = lockIn * 100 + '%';
+    if (lockIn >= 1) { lockIn = 0; F.act(S, 'decode'); draw(); }
+  }
+  document.addEventListener('input', e => { if (e.target.id === 'tune') tuneUpdate(0); });
+  function showResult() {
+    const o = S.last; if (!o) return;
+    if (o.boom) {
+      toast = 'Imploded on the way to ' + dep((o.depth)) + ' m. +' + o.lessons + ' lessons.' + (o.haul ? ' The black box saved ' + fmt(o.haul) + ' samples.' : '');
+      $('submark').classList.remove('boom'); void $('submark').offsetWidth; $('submark').classList.add('boom');
+      ghost = { depth: o.depth, until: performance.now() + 900 };
+    } else {
+      toast = 'Back from ' + dep((o.depth)) + ' m with ' + fmt(o.haul) + ' samples.' + (o.record ? ' New record.' : '')
+        + (o.spec !== null ? ' Found: ' + F.SPECIMENS[o.spec].name + '.' : '') + (o.frags ? ' +' + o.frags + ' fragments.' : '');
+      floaters.push({ sub: 1, text: '+' + fmt(o.haul), t: performance.now() });
+    }
+    toastUntil = Date.now() + 7000;
+  }
+
+  /* ---------- clicks and keys ---------- */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+    const a = b.dataset.a;
+    if (a.startsWith('ui:')) return ui(a.slice(3), b);
+    let res = F.act(S, a);
+    const mode = S.bulk || 1;
+    if (res === true && mode !== 1 && BULK[a.split(':')[0]]) { const n = mode === 'max' ? 250 : mode; for (let k = 1; k < n && F.can(S, a); k++) F.act(S, a); }
+    if (res === 'drain') { S = F.drain(S); S.t = Date.now(); seenDives = 0; save(); window.scrollTo(0, 0); }
+    if (a === 'scoop') scooped(b);
+    if (a === 'open' && res) {
+      draw(); zoneEl.tre.scrollIntoView({ block: 'end' });
+      modal(S.tank === 1 ? 'The hatch' : 'Over the rim', '<div class="stage">' + endingLines().map((x, i) => '<p style="--i:' + i + '">' + esc(x) + '</p>').join('') + '</div>');
+    }
+    draw(); live();
+  });
+  function scooped(b) {
+    b.classList.remove('bump'); void b.offsetWidth; b.classList.add('bump');
+    scoopT = performance.now();
+    if (!floaters.length || scoopT - floaters[floaters.length - 1].t > 130) floaters.push({ text: '+' + fmt(F.scoopSize(S)), t: scoopT, j: Math.random() * 70 });
+  }
+  // hold the Scoop button down and it keeps scooping
+  let holdTimer = 0, holdLoop = 0;
+  const stopHold = () => { clearTimeout(holdTimer); clearInterval(holdLoop); };
+  document.addEventListener('pointerdown', e => {
+    const b = e.target.closest('#scoop'); if (!b) return;
+    stopHold();
+    holdTimer = setTimeout(() => { holdLoop = setInterval(() => { F.act(S, 'scoop'); scooped(b); live(); }, 140); }, 350);
+  });
+  ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(ev => window.addEventListener(ev, stopHold));
+  function ui(what, b) {
+    const box = $('adminbox'), ta = $('savetext'), msg = $('adminmsg');
+    if (what.startsWith('book:')) { bookTab = what.slice(5); bookOpen = true; seenCount = S.spec.length + S.ach.length; $('book').hidden = false; drawBook(); }
+    if (what === 'closebook') { bookOpen = false; $('book').hidden = true; }
+    if (what.startsWith('bulk:')) { const v = what.slice(5); S.bulk = v === 'max' ? 'max' : +v; }
+    if (what.startsWith('go:')) { const el = zoneEl[what.slice(3)]; window.scrollTo({ top: el.offsetTop + ocean.offsetTop - $('hud').offsetHeight + 1, behavior: still ? 'auto' : 'smooth' }); }
+    if (what === 'bottle') { $('drift').hidden = true; toast = F.bottle(S); toastUntil = Date.now() + 8000; F.say(S, toast); }
+    if (what === 'meeting') document.body.classList.toggle('meeting');
+    if (what === 'close') $('modal').hidden = true;
+    if (what === 'export') { save(); box.hidden = false; ta.value = encode(S); ta.select(); msg.textContent = 'Copy this text and keep it. Paste it into Import save on another computer.'; }
+    if (what === 'import') { box.hidden = false; ta.value = ''; ta.focus(); msg.textContent = 'Paste a save here, then press Load this save.'; }
+    if (what === 'copy') { ta.select(); try { navigator.clipboard.writeText(ta.value).then(() => { msg.textContent = 'Copied.'; }, () => { msg.textContent = 'Select the text and copy it by hand.'; }); } catch (err) { msg.textContent = 'Select the text and copy it by hand.'; } }
+    if (what === 'load') {
+      try { S = decode(ta.value); S.t = Date.now(); seenDives = S.dives; save(); msg.textContent = 'Loaded.'; }
+      catch (err) { msg.textContent = 'That does not look like a FATHOM save.'; }
+    }
+    if (what === 'reset') {
+      if (Date.now() < resetArmed) { S = F.newState(1); F.say(S, 'start'); seenDives = 0; save(); b.textContent = 'Start over'; resetArmed = 0; window.scrollTo(0, 0); }
+      else { resetArmed = Date.now() + 4000; b.textContent = 'Press again to erase everything'; setTimeout(() => { b.textContent = 'Start over'; }, 4000); }
+    }
+    if (what === 'skip') { const before = snap(); F.advance(S, 3600); away(3600, before, false); }
+    draw(); live();
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { if (!$('modal').hidden) $('modal').hidden = true; else if (bookOpen) { bookOpen = false; $('book').hidden = true; } else document.body.classList.toggle('meeting'); live(); return; }
+    if (e.metaKey || e.ctrlKey || e.altKey || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    const k = e.key.toLowerCase();
+    if (k === 's') { F.act(S, 'scoop'); const b = $('scoop'); if (b) scooped(b); }
+    else if (k === 'd') F.act(S, 'dive');
+    else if (k === 'p') F.act(S, 'ping');
+    else if (k === 't') F.act(S, 'pep');
+    else if (k === 'n') ui(bookOpen ? 'closebook' : 'book:' + bookTab);
+    else if (k === '1' || k === '2' || k === '3') F.act(S, 'risk:' + (+k - 1));
+    else return;
+    draw(); live();
+  });
+  window.addEventListener('pagehide', save);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) save(); else tick(); });
+  if (location.hash === '#debug') $('skipbtn').hidden = false;
+
+  tick(); booted = true;
+  if (still) setInterval(() => { scene(performance.now()); drawIcons(performance.now()); }, 500); else requestAnimationFrame(frame);
+  setInterval(tick, 250);
+})();
+
+</script>
+</body>
+</html>
