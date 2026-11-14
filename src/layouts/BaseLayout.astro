@@ -55,6 +55,7 @@ const hasHero = Astro.slots.has('hero');
         )}
       </div>
     </header>
+    <slot name="below-header" />
 
     <main class="wrap">
       <slot name="hero" />

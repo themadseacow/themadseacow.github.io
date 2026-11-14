@@ -2,12 +2,14 @@
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import DrawerList from '../components/DrawerList.astro';
+import FathomStrip from '../components/FathomStrip.astro';
 import { getHighlights } from '../lib/experiments';
 import seacow from '../assets/seacow-bone.png';
 
 const highlights = await getHighlights();
 ---
 <BaseLayout drawer="highlights">
+  <FathomStrip slot="below-header" />
   <section class="hero" slot="hero">
     <div>
       <h1>Figuring it out by building it.</h1>

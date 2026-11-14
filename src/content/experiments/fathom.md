@@ -2,7 +2,6 @@
 title: FATHOM
 number: 3
 drawer: personal
-highlight: 1
 case_status: Complete
 type: Game
 date: 2026-11-13
@@ -14,7 +13,7 @@ files:
   - label: "Play FATHOM"
     href: /experiments/fathom/play/
     note: "Runs in the browser. Progress saves on your device."
-draft: false
+draft: true
 ---
 
 <!-- Short version, in my own words, so the game is easy to find. The full write-up (goal, what

@@ -1,0 +1,74 @@
+---
+// A thin teletype line under the header that invites people to play FATHOM.
+// It scrolls slowly, pauses on hover or keyboard focus, and holds still for reduced motion.
+// Screen readers hear one plain link (the moving copies are hidden from them).
+const text = 'Play FATHOM, my idle incremental clicker';
+---
+<div class="strip">
+  <a class="ticker" href="/fathom" aria-label={text}>
+    <span class="track" aria-hidden="true">
+      {[0, 1].map(() => (
+        <span class="run">
+          {Array.from({ length: 8 }, () => <span class="item">{text}</span>)}
+        </span>
+      ))}
+    </span>
+  </a>
+</div>
+
+<style>
+  .strip {
+    background: var(--interior);
+    border-bottom: 1px solid var(--rule);
+  }
+  .ticker {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    font-family: var(--type);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    padding: 0.7rem 0;
+    color: var(--folder);
+    background: none;
+  }
+  .ticker:hover {
+    color: var(--text);
+  }
+  .ticker:focus-visible {
+    outline-offset: -3px;
+  }
+  /* Two identical runs; sliding left by one run's width loops seamlessly. */
+  .track {
+    display: inline-flex;
+    animation: ticker 60s linear infinite;
+  }
+  .ticker:hover .track,
+  .ticker:focus-visible .track {
+    animation-play-state: paused;
+  }
+  .run {
+    display: inline-flex;
+    flex: none;
+  }
+  .item::after {
+    content: '';
+    display: inline-block;
+    width: 0.4em;
+    height: 0.4em;
+    margin: 0 1.6em;
+    vertical-align: 0.15em;
+    background: var(--soft);
+  }
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      animation: none;
+    }
+  }
+</style>
