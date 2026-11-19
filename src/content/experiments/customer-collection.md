@@ -18,8 +18,8 @@ Every few weeks someone in sales, marketing or customer success asked the same t
 Our hackathon team built a search page that could answer with an actual customer and the exact item they offered. I led the team during the hackathon. Afterward, I built out the worldwide version and packaged it so engineering could rebuild the file.
 
 <figure class="fig">
-  <img src="/experiments/customer-collection/demo.png" width="1280" height="760" fetchpriority="high" alt="A search for bike rental matches Half-day bike rental at a fictional activity center. The integration is unknown, and a stock photo shows a row of rental bikes.">
-  <figcaption><span class="kind">Screenshot</span> Recreated search result with a stock photo. Demonstration data.</figcaption>
+  <img src="/experiments/customer-collection/demo.png" width="1280" height="800" fetchpriority="high" alt="A fictional customer collection searched for 'bike rental', showing six matching customers with filters for type, region, integrations and resources.">
+  <figcaption><span class="kind">Screenshot</span> The real search tool, rebranded and loaded with fictional customers. Demonstration data.</figcaption>
 </figure>
 
 <section class="glance" aria-labelledby="at-a-glance">
