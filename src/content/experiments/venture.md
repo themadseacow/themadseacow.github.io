@@ -2,7 +2,7 @@
 title: "Venture"
 number: 6
 drawer: work
-highlight: 1
+highlight: 2
 case_status: Running
 type: Work tool
 date: 2026-09-29
