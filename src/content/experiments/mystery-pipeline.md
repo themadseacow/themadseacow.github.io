@@ -9,7 +9,6 @@ summary: "A seven-stage local AI pipeline that writes, solves, draws and checks 
 description: "A seven-stage local AI pipeline that writes, solves, draws and checks a printable mystery game. A different model family tries to solve each case cold before anything goes to print."
 concepts: ["Agents", "Evals", "Human in the loop", "Python"]
 thumb: /experiments/mystery-pipeline/dead-air-preview.jpg
-highlight: 2
 draft: false
 ---
 
