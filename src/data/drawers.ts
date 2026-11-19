@@ -18,7 +18,7 @@ const all: Drawer[] = [
   { id: 'personal', href: '/personal/', label: 'Personal', intro: 'Things built because I wanted to see if I could.', ready: true },
   { id: 'concepts', href: '/concepts/', label: 'By concept', intro: 'Pull every file that taught me something about one idea.', ready: false },
   { id: 'next', href: '/next/', label: 'Next up', intro: '[Intro, one line: things I want to learn or build next.]', ready: false },
-  { id: 'about', href: '/about/', label: 'About', ready: false },
+  { id: 'about', href: '/about/', label: 'About', ready: true },
 ];
 
 const dev = import.meta.env.DEV;

@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+// About page text: my own words (Nov 19), used exactly. Don't edit without asking.
+---
+<BaseLayout title="About" drawer="about">
+  <article>
+    <h1>About Mad Seacow</h1>
+
+    <p>I'm a SaaS sales rep who's becoming a little obsessed with systems, automation, and building things. I like figuring out where the information lives, how to connect the tools that have it, and how to tell when the result is wrong.</p>
+
+    <p>I don't write much code by hand. I design the systems, direct the AI that builds them, and test them against the real thing, whether that's a CRM, a sales team or a picture frame on my wall.</p>
+
+    <p>That's led to a few things I didn't expect to build, including a prospecting pipeline that other reps use, a printable mystery game and a framed <a href="/experiments/living-family-portrait/">e-paper portrait</a> that changes with the weather. Mad Seacow is where I keep track of what I built, what broke, and what I learned.</p>
+  </article>
+</BaseLayout>
+
+<style>
+  article {
+    max-width: var(--measure);
+  }
+  h1 {
+    margin: 0.25rem 0 1.5rem;
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+  }
+</style>
