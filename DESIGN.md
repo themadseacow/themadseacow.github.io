@@ -14,7 +14,7 @@ A filing cabinet in a workshop at night. Serious enough that a visitor thinks "c
 - Always **Mad Seacow** (never "Sea Cow"). Handle: themadseacow.
 - **Headline (decided Oct 15, for now): "Figuring it out by building it."** Sentence case. Don't change it without asking.
 - Kicker under the headline (decided Nov 13, my words, use exactly): **"Ideas into working things."** Short typewriter label.
-- Intro paragraphs (decided Nov 13, my words, use exactly): **"I build tools, automations, and the occasional thing that belongs on a wall. Some solve problems at work. Others start with “could I make that?”"** then **"These are the projects, the decisions behind them, and what it took to get them working."**
+- Intro paragraphs (decided Nov 13, trimmed Nov 19, my words, use exactly): **"I build tools, automations, and the occasional thing that belongs on a wall."** then **"These are the projects, the decisions behind them, and what it took to get them working."**
 
 ## Color (dark only, no light mode)
 | Token | Value | Job |
