@@ -18,8 +18,8 @@ Venture is a multi-agent prospecting pipeline that runs inside Claude Cowork. Gi
 Seven specialized agents on three Claude models handle the reading, searching and writing. Eight Python scripts make every decision that should come out the same way each time. All of it lands on a shared board, where the rep makes the calls. I built it to replace hours of tab-switching in my own prospecting, then rolled it out to other reps.
 
 <figure class="fig">
-  <img src="/experiments/venture/demo.png" width="1280" height="760" fetchpriority="high" alt="A fictional account on the Worked tab is held for outreach because the CRM shows another rep is working it.">
-  <figcaption><span class="kind">Screenshot</span> Recreated account hold. Demonstration data.</figcaption>
+  <img src="/experiments/venture/demo.png" width="1280" height="800" fetchpriority="high" alt="A fictional Venture board on the Workable tab: eight prospect accounts with fit grade, CRM status, booking system and next play, and one account expanded to show its sourced profile.">
+  <figcaption><span class="kind">Screenshot</span> The real board, loaded with fictional accounts. Demonstration data.</figcaption>
 </figure>
 
 <section class="glance" aria-labelledby="at-a-glance">

@@ -19,8 +19,8 @@ A simple question meant five tabs, a lot of searching, and usually a message to 
 Mable is a Claude plugin that does the looking for me. It's connected to all five systems plus the web, knows which one holds which kind of answer, brings back a link to the exact record or document, and asks before it changes anything. It was my first agent, and I still use it every day, now mostly to manage deals and keep the CRM current.
 
 <figure class="fig">
-  <img src="/experiments/mable/demo.png" width="1280" height="760" fetchpriority="high" alt="The sales assistant asks for approval before moving a fictional deal from Demo to Negotiation.">
-  <figcaption><span class="kind">Screenshot</span> Recreated CRM approval prompt. Demonstration data.</figcaption>
+  <img src="/experiments/mable/demo.png" width="1280" height="800" fetchpriority="high" alt="Mable's knowledge base file: a map of eight sources showing what each holds and when to fetch it, the order sources are checked, and four guardrails including CRM ownership and approval before any change.">
+  <figcaption><span class="kind">Excerpt</span> The plugin's knowledge map, source order and guardrails. Company details replaced.</figcaption>
 </figure>
 
 <section class="glance" aria-labelledby="at-a-glance">
