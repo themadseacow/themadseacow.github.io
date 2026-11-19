@@ -9,7 +9,7 @@ summary: "A searchable customer index that joins public catalogues with CRM data
 description: "A searchable customer index that joins public catalogues with CRM data. Built at a company hackathon, distributed to the entire sales team, and handed to engineering with a reproducible build kit."
 concepts: ["Data pipelines", "CRM", "Deterministic search"]
 thumb: /experiments/customer-collection/demo.png
-draft: true
+draft: false
 ---
 
 Every few weeks someone in sales, marketing or customer success asked the same thing in chat. “Which customers already do this?” We’d answer it, then somebody would ask again.

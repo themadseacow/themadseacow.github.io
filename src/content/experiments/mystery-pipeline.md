@@ -10,7 +10,7 @@ description: "A seven-stage local AI pipeline that writes, solves, draws and che
 concepts: ["Agents", "Evals", "Human in the loop", "Python"]
 thumb: /experiments/mystery-pipeline/dead-air-preview.jpg
 highlight: 2
-draft: true
+draft: false
 ---
 
 I gave a team of AI agents a broad brief: make a printable mystery I could sell, and spend no money. I'd just played a paper mystery on a trip and wanted to see if agents could make one.
@@ -23,6 +23,8 @@ The agents timed out, lost their outputs and turned in puzzles that were really 
 </figure>
 
 **[Download the printable Dead Air PDF](/experiments/mystery-pipeline/dead-air.pdf)** · 26 pages · 1–2 players · free
+
+Liked it? The next case is coming.
 
 <section class="glance" aria-labelledby="at-a-glance">
 <h2 id="at-a-glance" class="label">At a glance</h2>

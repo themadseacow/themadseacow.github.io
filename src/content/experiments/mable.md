@@ -9,7 +9,7 @@ summary: "A Claude plugin that answers sales questions from five live work syste
 description: "A Claude plugin that answers sales questions from five live work systems plus the web, routes every question through a knowledge map, cites every source and asks before it changes anything."
 concepts: ["Agents", "Guardrails", "CRM", "Skills"]
 thumb: /experiments/mable/demo.png
-draft: true
+draft: false
 ---
 
 Every answer I needed lived somewhere, just never in one place. Account ownership was in the CRM. What a customer said was in a call recording. Pricing, territories and positioning were in shared drives. Integrations and security details were in the wiki. Prospect data was in a separate database. Anything else lived in a colleague's head, often in another time zone.

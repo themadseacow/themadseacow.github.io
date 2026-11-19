@@ -9,7 +9,7 @@ summary: "A multi-agent prospecting pipeline: seven agents on three Claude model
 description: "A multi-agent prospecting pipeline: seven agents on three Claude models research, check and draft, scripts apply the rules, and the rep approves every decision on a shared board."
 concepts: ["Agents", "Multi-model", "Scripts", "CRM", "Human in the loop"]
 thumb: /experiments/venture/demo.png
-draft: true
+draft: false
 ---
 
 Venture is a multi-agent prospecting pipeline that runs inside Claude Cowork. Give it a market and it maps every relevant business, checks each one against the CRM and our ownership rules, researches the ones that are open, finds the right people and drafts outreach for a rep to approve.
