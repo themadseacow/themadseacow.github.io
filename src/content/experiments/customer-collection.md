@@ -2,7 +2,7 @@
 title: "The Customer Collection"
 number: 5
 drawer: work
-highlight: 3
+highlight: 1
 case_status: Complete
 type: Work tool
 date: 2026-10-26

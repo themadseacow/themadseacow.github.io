@@ -2,7 +2,7 @@
 title: The Living Family Portrait
 number: 2
 drawer: personal
-highlight: 1
+highlight: 2
 case_status: Complete
 type: Hardware
 date: 2026-11-13
